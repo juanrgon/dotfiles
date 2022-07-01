@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-git commit -m $@
+git commit -m "$*"

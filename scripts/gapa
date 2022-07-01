@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
-git diff --diff-filter=d --name-only | grep -E '\.py$'
 git add --patch "$@"
-git commit --no-verify

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+git_is_repo || exit 1
+
+[[ -z $(git status -s) ]]

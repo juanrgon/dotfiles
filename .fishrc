@@ -108,5 +108,5 @@ end
 
 # Make sure ~/.local/bin is in the PATH
 if ! [ -x git_is_repo ]; then
-
+    
 fi

@@ -1,5 +1,6 @@
 
 function fish_prompt
+    echo
     set -l segments streamline_os_icon_segment streamline_pwd_segment streamline_git_segment
     if set -q streamline_segments
         set segments $streamline_segments

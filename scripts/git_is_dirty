@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##################################################################
-# Exits with 0 if given directory is both a git repo and has files
+# Exits with 0 if given directory is both a git repo and has file
 # changes not staged for commit.
 # Exits with 1 otherwise.
 ##################################################################

@@ -14,12 +14,9 @@ sudo apt-get install -y \
     hub
 
 # Copy personal scripts to PATH
+chmod +x scripts/*
 cp $SCRIPT_DIR/scripts/* $HOME/.local/bin
 
-# Make sure ~/.local/bin is in the PATH
-if ! [ -x git_is_repo ]; then
-
-fi
-
 # Set fish prompt
+mkdir -p $HOME/.config/fish/functions/
 cp $SCRIPT_DIR/.config/fish/functions/fish_prompt.fish $HOME/.config/fish/functions/fish_prompt.fish

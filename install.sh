@@ -34,7 +34,7 @@ cp $SCRIPT_DIR/scripts/* $PERSONAL_SCRIPTS_DIR  # Copy scripts to my personal sc
 ##############################
 # Add personal scripts to PATH
 ##############################
-export \$PATH=$PERSONAL_SCRIPTS_DIR:\$PATH
+export PATH=$PERSONAL_SCRIPTS_DIR:\$PATH
 PATH_EXPORT_STMT
 
 ##################

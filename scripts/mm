@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+git fetch origin && git merge --no-edit origin master && and git status $*;

@@ -5,11 +5,12 @@ set -ou pipefail
 ###############################################
 # Get the directory in which this script lives.
 ###############################################
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+DOTFILES=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 #####################
 # Install OS packages
 #####################
+echo "Installing OS packages..."
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
     fd-find \
@@ -22,6 +23,7 @@ sudo apt-get install -y --no-install-recommends \
 #######################
 # Setup fish config dir
 #######################
+echo "Creating fish config dir..."
 FISH_CONF_DIR=$HOME/.config/fish
 mkdir -p $FISH_CONF_DIR
 touch $FISH_CONF_DIR/config.fish
@@ -29,6 +31,7 @@ touch $FISH_CONF_DIR/config.fish
 ################################################
 # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
 ################################################
+echo "Importing personal scripts..."
 PERSONAL_SCRIPTS_DIR="$HOME/.juan/bin"                   # destination for my personal scripts
 mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
 cp $SCRIPT_DIR/scripts/* $PERSONAL_SCRIPTS_DIR           # Copy scripts to my personal scripts dir
@@ -37,6 +40,7 @@ chmod +x $PERSONAL_SCRIPTS_DIR/*                         # Make personal scripts
 ##########################
 # Copy over fish functions
 ##########################
+echo "Importing fish functions"
 mkdir -p $FISH_CONF_DIR/functions/
 cp $SCRIPT_DIR/.config/fish/functions/fish_prompt.fish $FISH_CONF_DIR/functions/fish_prompt.fish
 

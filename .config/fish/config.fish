@@ -1,4 +1,6 @@
-# juanrgon fish config
+#######################
+# @juanrgon fish config
+#######################
 
 ############
 # Cheatsheet

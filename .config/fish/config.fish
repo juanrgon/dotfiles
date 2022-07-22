@@ -16,3 +16,10 @@ mkdir -p $PERSONAL_SCRIPTS_DIR                                       # Create pe
 chmod +x $PERSONAL_SCRIPTS_DIR/*                                     # Make personal scripts files executable
 # NOTE using "set --universal" on fish_user_paths would cause it to get longer on each new shell
 set --export fish_user_paths $PERSONAL_SCRIPTS_DIR $fish_user_paths  # add personal scripts dir to the PATH
+
+#######################################
+# Set code as EDITOR if it is installed
+#######################################
+if type --quiet code
+    set --universal EDITOR code
+end

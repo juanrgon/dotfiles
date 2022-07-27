@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+initial="$@"
+branch=$(git branch | fzf --query "$initial" | tr -d '[:space:]' | sed "s/*//")
+if [ -n "$branch" ]; then
+	git checkout $branch
+fi

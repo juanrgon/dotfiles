@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-git checkout -b $1 $git_main_branch_name
+git checkout -b $1 $(git_main_branch_name)

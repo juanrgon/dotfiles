@@ -48,8 +48,3 @@ cp $DOTFILES/.config/fish/functions/fish_prompt.fish $FISH_CONF_DIR/functions/fi
 #######################
 echo "Importing fish config file..."
 cp $DOTFILES/.config/fish/config.fish $FISH_CONF_DIR/config.fish
-
-#########################
-# Update tldr definitions
-#########################
-tldr --update

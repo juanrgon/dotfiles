@@ -8,7 +8,14 @@ REPO_DIR=$(git rev-parse --show-toplevel)
 GITHUB_USERNAME=$(gh api user | jq -r '.login')
 
 # Have the user choose a workflow with fzf
-WORKFLOW_FILENAME=$(ls $REPO_DIR/.github/workflows | grep -E '.yml$' | fzf)
+WORKFLOW_FILENAME=$(ls $REPO_DIR/.github/workflows | grep -E '.yml$' | fzf --query ${1:-""})
+
+if [ -z "$1" ]; then
+    echo "NOTE: Rerun this same workflow by running:"
+    echo
+    echo "    $(basename $0) $WORKFLOW_FILENAME"
+    echo
+fi
 
 # Start the chosen workflow
 gh workflow run $WORKFLOW_FILENAME
@@ -23,7 +30,8 @@ function cursor_reveal() {
 }
 
 cursor_hide
-for i in {10..1}
+COUNTDOWN=5
+for i in {5..1}
 do
     printf "\r\033[0KChecking logs in $i"
     sleep 1

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+unset GITHUB_TOKEN
+
+set -e
+set -o pipefail
+
+REPO_DIR=$(git rev-parse --show-toplevel)
+GITHUB_USERNAME=$(gh api user | jq -r '.login')
+
+# Have the user choose a workflow with fzf
+WORKFLOW_FILENAME=$(ls $REPO_DIR/.github/workflows | grep -E '.yml$' | fzf)
+
+# Start the chosen workflow
+gh workflow run $WORKFLOW_FILENAME
+
+function cursor_hide() {
+    tput civis
+    trap cursor_reveal EXIT
+}
+
+function cursor_reveal() {
+    tput cnorm
+}
+
+cursor_hide
+for i in {10..1}
+do
+    printf "\r\033[0KChecking logs in $i"
+    sleep 1
+done
+cursor_reveal
+
+# Get the ID of the workflow's most recent run
+WORKFLOW_RUN_ID=$(gh run list --workflow=$WORKFLOW_FILENAME --limit=1 -u $GITHUB_USERNAME --json databaseId --jq '.[0].databaseId')
+
+# Watch the workflow run
+gh run watch $WORKFLOW_RUN_ID

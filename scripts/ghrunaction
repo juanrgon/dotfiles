@@ -35,3 +35,7 @@ WORKFLOW_RUN_ID=$(gh run list --workflow=$WORKFLOW_FILENAME --limit=1 -u $GITHUB
 
 # Watch the workflow run
 gh run watch $WORKFLOW_RUN_ID
+
+if [ -x "$BROWSER" ]; then
+    $BROWSER $(gh run view $WORKFLOW_RUN_ID --json url --jq .url)
+fi

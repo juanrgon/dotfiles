@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 git_is_repo || exit 1
 
-[[ -z $(git status -s) ]] && exit 1
+[[ -n $(git diff --name-only --cached) ]] && exit 0
+exit 1

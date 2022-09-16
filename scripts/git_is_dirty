@@ -5,5 +5,5 @@
 # Exits with 1 otherwise.
 ##################################################################
 git_is_repo || exit 1
-command git diff --no-ext-diff --quiet --exit-code && exit 1
-exit 0
+git diff-files --quiet --exit-code || exit 0
+exit 1

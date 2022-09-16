@@ -19,7 +19,14 @@ main() {
         tldr \
         ripgrep \
         fzf \
-        hub
+        hub \
+        vim
+
+    # Fix fdfind
+    if os_is_linux;
+        ln -s /usr/bin/fdfind /usr/bin/fd
+    fi
+
 
     #######################
     # Setup fish config dir

@@ -1,3 +1,3 @@
 function fish_greeting
-    echo Welcome juanrgon 🫡
+    echo Welcome 🫡
 end

@@ -1,6 +1,6 @@
-#######################
-# @juanrgon fish config
-#######################
+################
+# My fish config
+################
 
 ############
 # Cheatsheet
@@ -11,7 +11,7 @@
 #####################################
 # Add my personal scripts to the PATH
 #####################################
-set --export PERSONAL_SCRIPTS_DIR $HOME/.juan/bin                 # destination for my personal scripts
+set --export PERSONAL_SCRIPTS_DIR $HOME/personal/bin                 # destination for my personal scripts
 mkdir -p $PERSONAL_SCRIPTS_DIR                                       # Create personal scripts dir
 
 # NOTE using "set --universal" instead of "set --export" on fish_user_paths would cause it to get longer on each new shell

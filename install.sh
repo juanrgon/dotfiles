@@ -33,7 +33,7 @@ main() {
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
     ################################################
     echo "Importing personal scripts..."
-    PERSONAL_SCRIPTS_DIR="$HOME/.juan/bin"                   # destination for my personal scripts
+    PERSONAL_SCRIPTS_DIR="$HOME/personal/bin"                   # destination for my personal scripts
     mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
     cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
 

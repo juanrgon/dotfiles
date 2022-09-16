@@ -20,7 +20,9 @@ main() {
         ripgrep \
         fzf \
         hub \
-        vim
+        vim \
+        git \
+        htop
 
     #######################
     # Setup fish config dir

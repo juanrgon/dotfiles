@@ -22,12 +22,6 @@ main() {
         hub \
         vim
 
-    # Fix fdfind
-    if os_is_linux;
-        ln -s /usr/bin/fdfind /usr/bin/fd
-    fi
-
-
     #######################
     # Setup fish config dir
     #######################
@@ -41,21 +35,42 @@ main() {
     echo "Importing personal scripts..."
     PERSONAL_SCRIPTS_DIR="$HOME/.juan/bin"                   # destination for my personal scripts
     mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
-    cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR           # Copy scripts to my personal scripts dir
-    chmod +x $PERSONAL_SCRIPTS_DIR/*                         # Make personal scripts files executable
+    cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
+
+    # Make personal scripts files executable
+    for SCRIPT in $PERSONAL_SCRIPTS_DIR/*;
+    do
+        if [ -f $SCRIPT ]; then
+            chmod +x $SCRIPT
+        fi
+    done
+
+    # Fix fdfind on linux
+    if os_is_linux; then
+        if ! [ -L $PERSONAL_SCRIPTS_DIR/fd ]; then
+            ln -s $PERSONAL_SCRIPTS_DIR/fdfind $PERSONAL_SCRIPTS_DIR/fd
+        fi
+    fi
 
     ##########################
     # Copy over fish functions
     ##########################
     echo "Importing fish functions"
     mkdir -p $FISH_CONF_DIR/functions/
-    cp $DOTFILES/.config/fish/functions/fish_prompt.fish $FISH_CONF_DIR/functions/fish_prompt.fish
+    cp $DOTFILES/.config/fish/functions/* $FISH_CONF_DIR/functions/
 
     #######################
     # Copy over fish config
     #######################
     echo "Importing fish config file..."
     cp $DOTFILES/.config/fish/config.fish $FISH_CONF_DIR/config.fish
+
+    ###########################
+    # Set fish as default shell
+    ###########################
+    if [[ $SHELL != "fish" ]]; then
+        make_fish_default_shell
+    fi
 }
 
 install_packages() {
@@ -139,6 +154,21 @@ user_is_root() {
     else
         return 1
     fi
+}
+
+make_fish_default_shell() {
+    FISH_PATH=$(which fish)
+
+    if ! grep -q fish /etc/shells; then
+        if user_is_root; then
+            echo $FISH_PATH >> /etc/shells
+        else
+            echo $FISH_PATH | sudo tee -a /etc/shells
+        fi
+    fi
+
+    echo "Setting fish as default shell..."
+    chsh -s $FISH_PATH
 }
 
 main

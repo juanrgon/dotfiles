@@ -65,12 +65,6 @@ main() {
     echo "Importing fish config file..."
     cp $DOTFILES/.config/fish/config.fish $FISH_CONF_DIR/config.fish
 
-    ###########################
-    # Set fish as default shell
-    ###########################
-    if [[ $SHELL != "fish" ]]; then
-        make_fish_default_shell
-    fi
 }
 
 install_packages() {

@@ -53,7 +53,7 @@ main() {
 
 install_packages() {
     if os_is_linux; then
-        if [ whoami != "root" ]; then
+        if user_is_root; then
             apt-get update
         else
             sudo apt-get update
@@ -82,10 +82,10 @@ install_package() {
     echo installing $PKG_NAME
 
     if os_is_linux; then
-        if [ whoami != "root" ]; then
-            sudo apt-get install -y $PKG_NAME
-        else
+        if user_is_root; then
             apt-get install -y $PKG_NAME
+        else
+            sudo apt-get install -y $PKG_NAME
         fi
     elif os_is_macos; then
         # Make sure we have brew installed
@@ -117,8 +117,17 @@ os_is_linux() {
 }
 
 
+
 os_is_macos() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+user_is_root() {
+    if (( $EUID == 0 )); then
         return 0
     else
         return 1

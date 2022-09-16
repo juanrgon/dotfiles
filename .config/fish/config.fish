@@ -11,11 +11,18 @@
 #####################################
 # Add my personal scripts to the PATH
 #####################################
-set --export PERSONAL_SCRIPTS_DIR $HOME/bin/juanrgon                 # destination for my personal scripts
-mkdir -p $PERSONAL_SCRIPTS_DIR                                       # Create personal scripts dir
+set --export PERSONAL_SCRIPTS_DIR $HOME/bin/juanrgon    # destination for my personal scripts
+mkdir -p $PERSONAL_SCRIPTS_DIR                          # Create personal scripts dir
 
 # NOTE using "set --universal" instead of "set --export" on fish_user_paths would cause it to get longer on each new shell
 set --export fish_user_paths $PERSONAL_SCRIPTS_DIR $fish_user_paths  # add personal scripts dir to the PATH
+
+switch (uname)
+    case Darwin
+        set --export fish_user_paths /opt/homebrew/bin $fish_user_paths
+end
+
+set --export fish_user_paths  $fish_user_paths  # add personal scripts dir to the PATH
 
 #######################################
 # Set code as EDITOR if it is installed

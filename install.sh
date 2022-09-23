@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -ou pipefail
+set -e
 
 PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"   # destination for my personal scripts
+THIS_DIR="$(dirname "${BASH_SOURCE[0]}")"   # directory of this script
 
 main() {
     ###############################################
@@ -13,9 +15,8 @@ main() {
     #####################
     # Install OS packages
     #####################
-    echo "Installing OS packages..."
+    log "Installing OS packages..."
     install_packages \
-        fd \
         fish \
         tldr \
         ripgrep \
@@ -26,23 +27,29 @@ main() {
         htop \
         curl
 
-    ##############
-    # Install rust
-    ##############
-    echo "Installing rust..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
+    #################################
+    # Install rust and cargo packages
+    #################################
+    log "Installing rust..."
+    $THIS_DIR/install/rust.sh -y
+    export PATH="$HOME/.cargo/bin:$PATH"
+    cargo install \
+        exa \
+        procs \
+        fd-find
+
 
     #######################
     # Setup fish config dir
     #######################
-    echo "Creating fish config dir..."
+    log "Creating fish config dir..."
     FISH_CONF_DIR=$HOME/.config/fish
     mkdir -p $FISH_CONF_DIR
 
     ################################################
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
     ################################################
-    echo "Importing personal scripts..."
+    log "Importing personal scripts..."
     mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
     cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
 
@@ -64,43 +71,45 @@ main() {
     ##########################
     # Copy over fish functions
     ##########################
-    echo "Importing fish functions"
+    log "Importing fish functions"
     mkdir -p $FISH_CONF_DIR/functions/
     cp $DOTFILES/.config/fish/functions/* $FISH_CONF_DIR/functions/
 
     #######################
     # Copy over fish config
     #######################
-    echo "Importing fish config file..."
+    log "Importing fish config file..."
     cp $DOTFILES/.config/fish/config.fish $FISH_CONF_DIR/config.fish
 
 }
 
 install_packages() {
+    PKGS=""
+    for pkg in "$@"
+    do
+        PKGS="$PKGS $(package_name $pkg)"
+    done
+
     if os_is_linux; then
         if user_is_root; then
             apt-get update
         else
             sudo apt-get update
         fi
+        PKGS="$PKGS build-essential"
     elif os_is_macos; then
         # Make sure we have brew installed
         if ! command -v brew &> /dev/null; then
-            echo "Installing brew..."
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            log "Installing Homebrew..."
+            $THIS_DIR/install/homebrew.sh
         fi
     else
-        echo "FAILED TO INSTALL PACKAGES"
-        echo "OS not supported 😔: $OSTYPE"
+        log "FAILED TO INSTALL PACKAGES"
+        log "OS not supported 😔: $OSTYPE"
         exit 1
     fi
 
-    PKGS=""
-    for pkg in "$@"
-    do
-        PKGS="$PKGS $(package_name $pkg)"
-    done
-    echo installing $PKGS
+    log installing $PKGS
 
     if os_is_linux; then
         if user_is_root; then
@@ -112,7 +121,7 @@ install_packages() {
         # Make sure we have brew installed
         brew install $@
     else
-        echo "OS not supported 😔: $OSTYPE"
+        error "OS not supported 😔: $OSTYPE"
     fi
 }
 
@@ -164,8 +173,16 @@ make_fish_default_shell() {
         fi
     fi
 
-    echo "Setting fish as default shell..."
+    log "Setting fish as default shell..."
     chsh -s $FISH_PATH
+}
+
+log() {
+    echo "🏠 [dotfiles]: $*"
+}
+
+error() {
+    log "$* 😔"
 }
 
 main

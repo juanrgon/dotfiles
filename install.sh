@@ -36,7 +36,8 @@ main() {
     cargo install \
         exa \
         procs \
-        fd-find
+        fd-find \
+        git-delta
 
 
     #######################
@@ -67,6 +68,11 @@ main() {
             ln -s $PERSONAL_SCRIPTS_DIR/fdfind $PERSONAL_SCRIPTS_DIR/fd
         fi
     fi
+
+    #################
+    # Setup git delta
+    #################
+    git config --add $THIS_DIR/.config/delta/themes.gitconfig
 
     ##########################
     # Copy over fish functions

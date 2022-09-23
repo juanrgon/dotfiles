@@ -22,7 +22,10 @@ switch (uname)
         set --export fish_user_paths /opt/homebrew/bin $fish_user_paths
 end
 
-set --export fish_user_paths  $fish_user_paths  # add personal scripts dir to the PATH
+#################################
+# Add Cargo's bin dir to the PATH
+#################################
+set --export fish_user_paths $HOME/.cargo/bin $fish_user_paths  # add personal scripts dir to the PATH
 
 #######################################
 # Set code as EDITOR if it is installed

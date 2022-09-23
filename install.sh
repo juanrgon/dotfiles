@@ -2,6 +2,7 @@
 
 set -ou pipefail
 
+PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"   # destination for my personal scripts
 
 main() {
     ###############################################
@@ -22,7 +23,14 @@ main() {
         hub \
         vim \
         git \
-        htop
+        htop \
+        curl
+
+    ##############
+    # Install rust
+    ##############
+    echo "Installing rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 
     #######################
     # Setup fish config dir
@@ -35,7 +43,6 @@ main() {
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
     ################################################
     echo "Importing personal scripts..."
-    PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"                # destination for my personal scripts
     mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
     cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
 

@@ -95,7 +95,7 @@ install_packages() {
         exit 1
     fi
 
-    PKGS = ""
+    PKGS=""
     for pkg in "$@"
     do
         PKGS="$PKGS $(package_name $pkg)"

@@ -88,20 +88,16 @@ install_packages() {
         exit 1
     fi
 
+    PKGS = ""
     for pkg in "$@"
     do
-        install_package $pkg
+        PKGS="$PKGS $(package_name $pkg)"
     done
-}
-
-
-install_package() {
-    PKG_NAME=$(package_name $1)
-    echo installing $PKG_NAME
+    echo installing $PKGS
 
     if os_is_linux; then
         if user_is_root; then
-            apt-get install -y $PKG_NAME
+            apt-get install -y $PKGS
         else
             sudo apt-get install -y $PKG_NAME
         fi
@@ -133,8 +129,6 @@ os_is_linux() {
         return 1
     fi
 }
-
-
 
 os_is_macos() {
     if [[ "$OSTYPE" == "darwin"* ]]; then

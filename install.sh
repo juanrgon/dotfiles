@@ -76,7 +76,6 @@ main() {
     shortcut g      git
     shortcut ga     git add
     shortcut gapa   git add --patch
-    shortcut gc     git commit --message
     shortcut gclean git clean --force -d
     shortcut gcne   git commit --no-edit
     shortcut gco    git checkout
@@ -87,7 +86,7 @@ main() {
     shortcut gf     git fetch --prune
     shortcut glg    git log --stat
     shortcut gnb    git checkout -b
-    shortcut grbi   git rebase --interactive 
+    shortcut grbi   git rebase --interactive
     shortcut grh    git reset HEAD
     shortcut gs     git status
     shortcut gup    'git push origin $(git_branch_name)'

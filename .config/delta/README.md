@@ -1,1 +1,0 @@
-Settings for git delta

@@ -34,15 +34,17 @@ main() {
     #################################
     # Install rust and cargo packages
     #################################
-    log "Installing rust..."
-    $THIS_DIR/install/rust.sh -y
+    if ! command -v cargo &> /dev/null; then
+        log "Installing rust..."
+        $THIS_DIR/install/rust.sh -y
+    fi
     export PATH="$HOME/.cargo/bin:$PATH"
+    log "Installing rust packages..."
     cargo install \
         exa \
         procs \
         fd-find \
         git-delta
-
 
     #######################
     # Setup fish config dir

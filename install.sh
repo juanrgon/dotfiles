@@ -97,9 +97,15 @@ main() {
     shortcut gup    'git push origin $(git_branch_name)'
 
     #################
-    # Setup git delta
+    # Setup git config
     #################
-    git config --global --add include.path $THIS_DIR/.config/git/juanrgon.gitconfig
+    GIT_CONFIG=$THIS_DIR/.config/git/juanrgon.gitconfig
+    if git config --global --get-all include.path | grep $GIT_CONFIG > /dev/null; then
+        log "gitconfig already set up"
+    else
+        log "Setting up git config..."
+        git config --global --add include.path $GIT_CONFIG
+    fi
 
     ##########################
     # Copy over fish functions

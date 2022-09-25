@@ -99,7 +99,7 @@ main() {
     #################
     # Setup git delta
     #################
-    git config --add $THIS_DIR/.config/delta/themes.gitconfig
+    git config --global --add include.path $THIS_DIR/.config/git/juanrgon.gitconfig
 
     ##########################
     # Copy over fish functions

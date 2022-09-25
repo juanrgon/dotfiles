@@ -5,11 +5,7 @@
     diffFilter = delta --color-only
 
 [delta]
-    line-numbers=true
+    line-numbers = true
     plus-color = "#012800"
     minus-color = "#340001"
     syntax-theme = Monokai Extended
-
-
-[include]
-    path = /dotfiles/.config/delta/themes.gitconfig

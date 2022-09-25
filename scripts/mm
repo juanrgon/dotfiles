@@ -1,2 +1,7 @@
 #!/usr/bin/env bash
-git fetch origin && git merge --no-edit origin $(git_main_branch_name) && and git status $*;
+
+set -e
+
+git fetch origin
+git merge --no-edit origin $(git_main_branch_name)
+git status;

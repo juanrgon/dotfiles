@@ -63,12 +63,34 @@ main() {
         fi
     done
 
-    # Fix fdfind on linux
-    if os_is_linux; then
-        if ! [ -L $PERSONAL_SCRIPTS_DIR/fd ]; then
-            ln -s $PERSONAL_SCRIPTS_DIR/fdfind $PERSONAL_SCRIPTS_DIR/fd
-        fi
-    fi
+    #################################################################################
+    # Add shortcuts
+    #
+    # They're like aliases, but they generate bash scripts, so they're shell agnostic
+    #################################################################################
+    log "Adding shortcuts..."
+    shortcut dc     docker compose
+    shortcut dcup   docker compose up
+    shortcut dcdn   docker compose down
+    shortcut dcb    docker compose build
+    shortcut g      git
+    shortcut ga     git add
+    shortcut gapa   git add --patch
+    shortcut gc     git commit --message
+    shortcut gclean git clean --force -d
+    shortcut gcne   git commit --no-edit
+    shortcut gco    git checkout
+    shortcut gcom   git checkout master
+    shortcut gd     git diff
+    shortcut gdn    'git pull origin $(git_branch_name)'
+    shortcut gdca   git diff --cached
+    shortcut gf     git fetch --prune
+    shortcut glg    git log --stat
+    shortcut gnb    git checkout -b
+    shortcut grbi   git rebase --interactive 
+    shortcut grh    git reset HEAD
+    shortcut gs     git status
+    shortcut gup    'git push origin $(git_branch_name)'
 
     #################
     # Setup git delta
@@ -191,5 +213,18 @@ log() {
 error() {
     log "$* 😔"
 }
+
+shortcut() {
+    SHORTCUT_NAME=$1
+    shift
+
+cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
+#!/usr/bin/env bash
+$* \$*
+EOF
+
+chmod +x $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
+}
+
 
 main

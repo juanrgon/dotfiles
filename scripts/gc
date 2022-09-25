@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
+# THIS NEEDS TO BE A SCRIPT!
 git commit -m "$*"

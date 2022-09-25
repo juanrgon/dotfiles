@@ -3,8 +3,11 @@
 set -ou pipefail
 set -e
 
-PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"   # destination for my personal scripts
-THIS_DIR="$(dirname "${BASH_SOURCE[0]}")"   # directory of this script
+# destination for my personal scripts
+PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
+
+# directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
+THIS_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
 
 main() {
     ###############################################

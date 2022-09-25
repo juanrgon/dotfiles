@@ -29,6 +29,8 @@ main() {
         git \
         htop \
         bat \
+        rsync \
+        tree \
         curl
 
     #################################
@@ -46,12 +48,11 @@ main() {
         fd-find \
         git-delta
 
-    #######################
-    # Setup fish config dir
-    #######################
-    log "Creating fish config dir..."
-    FISH_CONF_DIR=$HOME/.config/fish
-    mkdir -p $FISH_CONF_DIR
+    ##############
+    # Sync dotfiles
+    ##############
+    log "Syncing dotfiles..."
+    rsync $THIS_DIR/dotfiles/ $HOME/ -r
 
     ################################################
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
@@ -99,27 +100,13 @@ main() {
     #################
     # Setup git config
     #################
-    GIT_CONFIG=$THIS_DIR/.config/git/juanrgon.gitconfig
+    GIT_CONFIG=$HOME/.config/git/juanrgon.gitconfig
     if git config --global --get-all include.path | grep $GIT_CONFIG > /dev/null; then
         log "gitconfig already set up"
     else
         log "Setting up git config..."
         git config --global --add include.path $GIT_CONFIG
     fi
-
-    ##########################
-    # Copy over fish functions
-    ##########################
-    log "Importing fish functions"
-    mkdir -p $FISH_CONF_DIR/functions/
-    cp $DOTFILES/.config/fish/functions/* $FISH_CONF_DIR/functions/
-
-    #######################
-    # Copy over fish config
-    #######################
-    log "Importing fish config file..."
-    cp $DOTFILES/.config/fish/config.fish $FISH_CONF_DIR/config.fish
-
 }
 
 install_packages() {

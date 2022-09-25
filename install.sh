@@ -141,7 +141,7 @@ install_packages() {
         if user_is_root; then
             apt-get install -y $PKGS
         else
-            sudo apt-get install -y $PKG_NAME
+            sudo apt-get install -y $PKGS
         fi
     elif os_is_macos; then
         # Make sure we have brew installed

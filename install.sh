@@ -76,9 +76,9 @@ main() {
     #################################################################################
     log "Adding shortcuts..."
     shortcut dc     docker compose
-    shortcut dcup   docker compose up
-    shortcut dcdn   docker compose down
     shortcut dcb    docker compose build
+    shortcut dcdn   docker compose down
+    shortcut dcup   docker compose up
     shortcut g      git
     shortcut ga     git add
     shortcut gapa   git add --patch

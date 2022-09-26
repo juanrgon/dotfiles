@@ -7,13 +7,12 @@ set -e
 PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
 
 # directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
-THIS_DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
     ###############################################
     # Get the directory in which this script lives.
     ###############################################
-    DOTFILES=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
     #####################
     # Install OS packages
@@ -59,7 +58,7 @@ main() {
     ################################################
     log "Importing personal scripts..."
     mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
-    cp $DOTFILES/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
+    cp $THIS_DIR/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
 
     # Make personal scripts files executable
     for SCRIPT in $PERSONAL_SCRIPTS_DIR/*;

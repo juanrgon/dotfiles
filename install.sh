@@ -14,38 +14,15 @@ main() {
     # Get the directory in which this script lives.
     ###############################################
 
-    #####################
-    # Install OS packages
-    #####################
-    log "Installing OS packages..."
+    ##################################################################
+    # Install OS packages need to start fish and install other packages
+    ##################################################################
+    log "Installing Essential OS packages..."
     install_packages \
         fish \
-        tldr \
-        ripgrep \
-        fzf \
-        hub \
-        vim \
-        git \
-        htop \
-        bat \
         rsync \
-        tree \
+        git \
         curl
-
-    #################################
-    # Install rust and cargo packages
-    #################################
-    if ! command -v cargo &> /dev/null; then
-        log "Installing rust..."
-        $THIS_DIR/install/rust.sh -y
-    fi
-    export PATH="$HOME/.cargo/bin:$PATH"
-    log "Installing rust packages..."
-    cargo install \
-        exa \
-        procs \
-        fd-find \
-        git-delta
 
     ##############
     # Sync dotfiles
@@ -107,6 +84,42 @@ main() {
         log "Setting up git config..."
         git config --global --add include.path $GIT_CONFIG
     fi
+
+    # If vscode is installed, make it the default git editor
+    if command -v code &> /dev/null; then
+        git config --global core.editor "code --wait"
+    fi
+
+    ########################
+    # Install extra packages
+    ########################
+    log "Installing Extra OS packages..."
+    install_packages \
+        tldr \
+        ripgrep \
+        fzf \
+        hub \
+        vim \
+        git \
+        htop \
+        bat \
+        rsync \
+        tree
+
+    ################################
+    # Install rust and cargo packages
+    ################################
+    if ! command -v cargo &> /dev/null; then
+        log "Installing rust..."
+        $THIS_DIR/install/rust.sh -y
+    fi
+    export PATH="$HOME/.cargo/bin:$PATH"
+    log "Installing rust packages..."
+    cargo install \
+        exa \
+        procs \
+        fd-find \
+        git-delta
 }
 
 install_packages() {

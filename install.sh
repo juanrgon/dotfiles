@@ -78,6 +78,7 @@ main() {
     shortcut dc     docker compose
     shortcut dcb    docker compose build
     shortcut dcdn   docker compose down
+    shortcut dcr    docker compose run --rm
     shortcut dcup   docker compose up
     shortcut g      git
     shortcut ga     git add

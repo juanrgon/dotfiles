@@ -26,39 +26,10 @@ function fish_prompt
 
 end
 
-function streamline_os_icon_segment
-    set -l os_icon
-    switch (uname)
-      case Darwin
-        set os_icon ''
-      case Linux
-        set os_icon '🐧'
-      case Windows_NT
-        set os_icon '⊞'
-    end
-    echo $os_icon
-    echo black
-    echo white
-end
-
 function streamline_pwd_segment
     echo (prompt_pwd)
     echo blue
     echo black
-end
-
-function streamline_git_segment
-    if git_is_repo
-        echo " "(git_branch_name)
-        if git_is_dirty
-            echo red
-        else if git_is_staged
-            echo yellow
-        else
-            echo green
-        end
-        echo black
-    end
 end
 
 

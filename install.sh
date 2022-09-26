@@ -104,7 +104,8 @@ main() {
         htop \
         bat \
         rsync \
-        tree
+        tree \
+        less
 
     ################################
     # Install rust and cargo packages

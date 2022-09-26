@@ -22,7 +22,7 @@ set --export fish_user_paths $PERSONAL_SCRIPTS_DIR $fish_user_paths  # add perso
 ##################################
 switch (uname)
     case Darwin
-        if type --quiet brew
+        if test -d /opt/homebrew/bin
             set --export fish_user_paths /opt/homebrew/bin $fish_user_paths
         end
 end
@@ -30,7 +30,7 @@ end
 #################################
 # Add Cargo's bin dir to the PATH
 #################################
-if type --quiet cargo
+if test -d $HOME/.cargo/bin
     set --export fish_user_paths $HOME/.cargo/bin $fish_user_paths  # add personal scripts dir to the PATH
 end
 

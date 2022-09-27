@@ -10,13 +10,9 @@ PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
-    ###############################################
-    # Get the directory in which this script lives.
-    ###############################################
-
-    ##################################################################
-    # Install OS packages need to start fish and install other packages
-    ##################################################################
+    ####################################################################
+    # Install OS packages needed to start fish and install other packages
+    ####################################################################
     log "Installing Essential OS packages..."
     install_packages \
         fish \

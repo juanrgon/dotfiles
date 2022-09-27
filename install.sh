@@ -67,6 +67,7 @@ main() {
     shortcut gdn    'git pull origin $(git_branch_name)'
     shortcut gdca   git diff --cached
     shortcut gf     git fetch --prune
+    shortcut git    hub
     shortcut glg    git log --stat
     shortcut gnb    git checkout -b
     shortcut grbi   git rebase --interactive

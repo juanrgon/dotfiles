@@ -47,6 +47,8 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
+    shortcut cat    bat
+    shortcut d      docker
     shortcut dc     docker compose
     shortcut dcb    docker compose build
     shortcut dcdn   docker compose down
@@ -63,16 +65,26 @@ main() {
     shortcut gdn    'git pull origin $(git_branch_name)'
     shortcut gdca   git diff --cached
     shortcut gf     git fetch --prune
-    shortcut git    hub
     shortcut glg    git log --stat
     shortcut gnb    git checkout -b
     shortcut grbi   git rebase --interactive
     shortcut grh    git reset HEAD
     shortcut gs     git status
     shortcut gup    'git push origin $(git_branch_name)'
+    shortcut ls     exa
+    shortcut l      ls
+    shortcut ll     ls -l
+    shortcut lt     ls --tree
 
-    if os_is_linux && command -v fdfind; then
-        shortcut fd fdfind
+    if os_is_linux; then
+        if command -v fdfind &> /dev/null; then
+            log "Fixing fd for ubuntu..."
+            shortcut fd fdfind
+        fi
+
+        if command -v batcat &> /dev/null; then
+            shortcut bat batcat
+        fi
     fi
 
     #################
@@ -109,6 +121,7 @@ main() {
         exa \
         fd \
         cargo \
+        httpie \
         less
 
     ###############################
@@ -226,7 +239,7 @@ shortcut() {
     SHORTCUT_NAME=$1
     shift
 
-cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
+/bin/cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
 #!/usr/bin/env bash
 $* \$*
 EOF

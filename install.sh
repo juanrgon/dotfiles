@@ -74,6 +74,10 @@ main() {
     shortcut gs     git status
     shortcut gup    'git push origin $(git_branch_name)'
 
+    if os_is_linux && command -v fdfind; then
+        shortcut fd fdfind
+    fi
+
     #################
     # Setup git config
     #################
@@ -105,21 +109,17 @@ main() {
         bat \
         rsync \
         tree \
+        exa \
+        fd \
+        cargo \
         less
 
-    ################################
-    # Install rust and cargo packages
-    ################################
-    if ! command -v cargo &> /dev/null; then
-        log "Installing rust..."
-        $THIS_DIR/install/rust.sh -y
-    fi
+    ###############################
+    # Setup rust and cargo packages
+    ###############################
     export PATH="$HOME/.cargo/bin:$PATH"
     log "Installing rust packages..."
     cargo install \
-        exa \
-        procs \
-        fd-find \
         git-delta
 }
 

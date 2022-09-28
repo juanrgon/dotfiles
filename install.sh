@@ -54,7 +54,6 @@ main() {
     shortcut dcdn   docker compose down
     shortcut dcr    docker compose run --rm
     shortcut dcup   docker compose up
-    shortcut dotfiles-install $THIS_DIR/install.sh
     shortcut dotfiles-reload "cd $THIS_DIR && gdn && $THIS_DIR/install.sh"
     shortcut g      git
     shortcut ga     git add

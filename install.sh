@@ -73,7 +73,7 @@ main() {
     shortcut gup    'git push origin $(git_branch_name)'
     shortcut ls     exa
     shortcut l      ls
-    shortcut ll     ls -l
+    shortcut ll     ls --long --icons --group-directories-first --all
     shortcut lt     ls --tree
 
     if os_is_linux; then

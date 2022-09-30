@@ -170,7 +170,7 @@ install_packages() {
         fi
     elif os_is_macos; then
         # Make sure we have brew installed
-        brew install $@
+        brew install $PKGS
     else
         error "OS not supported 😔: $OSTYPE"
     fi
@@ -178,15 +178,25 @@ install_packages() {
 
 # Return the proper package name for the current OS
 package_name() {
-    if [ $1 == "fd" ]; then
-        if os_is_linux; then
-            echo "fd-find"
-        elif os_is_macos; then
-            echo "fd"
-        fi
-    else
-        echo $1
-    fi
+    case $1 in
+        fd)
+            if os_is_linux; then
+                echo "fd-find"
+            elif os_is_macos; then
+                echo "fd"
+            fi
+            ;;
+        cargo)
+            if os_is_linux; then
+                echo "cargo"
+            elif os_is_macos; then
+                echo "rust"
+            fi
+            ;;
+        *)
+            echo $1
+            ;;
+    esac
 }
 
 os_is_linux() {

@@ -3,8 +3,7 @@ My global dotfiles
 # Install
 
 ```
-git clone git@github.com:juanrgon/dotfiles.git $HOME/dotfiles
-$HOME/dotfiles/install.sh
+curl --location https://raw.githubusercontent.com/juanrgon/dotfiles/master/download.sh | bash
 ```
 
 # Test

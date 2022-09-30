@@ -12,6 +12,7 @@ main() {
     DOTFILES_REPO_DESTINATION=$HOME/github/juanrgon/dotfiles
 
     # Clone dotfiles repo to ~/github/juanrgon/dotfiles
+    rm $DOTFILES_REPO_DESTINATION
     git clone https://github.com/juanrgon/dotfiles.git $DOTFILES_REPO_DESTINATION
 
     # Run dotfiles install script

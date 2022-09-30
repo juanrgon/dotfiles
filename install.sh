@@ -4,10 +4,10 @@ set -ou pipefail
 set -e
 
 # destination for my personal scripts
-PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
+export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
 
 # directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
-THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
     ####################################################################
@@ -206,6 +206,7 @@ os_is_linux() {
         return 1
     fi
 }
+export -f os_is_linux
 
 os_is_macos() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -214,6 +215,7 @@ os_is_macos() {
         return 1
     fi
 }
+export -f os_is_macos
 
 user_is_root() {
     if (( $EUID == 0 )); then
@@ -222,29 +224,17 @@ user_is_root() {
         return 1
     fi
 }
-
-make_fish_default_shell() {
-    FISH_PATH=$(which fish)
-
-    if ! grep -q fish /etc/shells; then
-        if user_is_root; then
-            echo $FISH_PATH >> /etc/shells
-        else
-            echo $FISH_PATH | sudo tee -a /etc/shells
-        fi
-    fi
-
-    log "Setting fish as default shell..."
-    chsh -s $FISH_PATH
-}
+export -f user_is_root
 
 log() {
     echo "🏠 [dotfiles]: $*"
 }
+export -f log
 
 error() {
     log "$* 😔"
 }
+export -f error
 
 shortcut() {
     SHORTCUT_NAME=$1
@@ -257,6 +247,7 @@ EOF
 
 chmod +x $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
 }
+export -f shortcut
 
 
 main

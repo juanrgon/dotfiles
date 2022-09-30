@@ -116,10 +116,8 @@ main() {
         vim \
         git \
         htop \
-        bat \
         rsync \
         tree \
-        exa \
         fd \
         cargo \
         httpie \
@@ -131,6 +129,8 @@ main() {
     export PATH="$HOME/.cargo/bin:$PATH"
     log "Installing rust packages..."
     cargo install \
+        bat \
+        exa \
         git-delta
 }
 

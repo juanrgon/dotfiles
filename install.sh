@@ -133,7 +133,8 @@ main() {
     cargo install \
         bat \
         exa \
-        git-delta
+        git-delta \
+        zoxide
 }
 
 install_packages() {

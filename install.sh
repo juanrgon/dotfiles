@@ -7,7 +7,7 @@ set -e
 export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
 
 # directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
-export THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
     ####################################################################
@@ -40,6 +40,8 @@ main() {
             chmod +x $SCRIPT
         fi
     done
+
+    export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
 
     #################################################################################
     # Add shortcuts
@@ -235,19 +237,5 @@ error() {
     log "$* 😔"
 }
 export -f error
-
-shortcut() {
-    SHORTCUT_NAME=$1
-    shift
-
-/bin/cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
-#!/usr/bin/env bash
-$* \$*
-EOF
-
-chmod +x $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
-}
-export -f shortcut
-
 
 main

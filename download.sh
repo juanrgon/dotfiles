@@ -20,7 +20,7 @@ main() {
     fi
 
     # Run dotfiles install script
-    $DOTFILES_REPO_DESTINATION/install.sh
+    source $DOTFILES_REPO_DESTINATION/install.sh
 }
 
 install_git() {

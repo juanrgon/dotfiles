@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+SHORTCUT_NAME=$1
+shift
+
+/bin/cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
+#!/usr/bin/env bash
+$* \$*
+EOF
+
+chmod +x $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME

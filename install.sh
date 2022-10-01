@@ -123,6 +123,7 @@ main() {
         fd \
         cargo \
         httpie \
+        zoxide \
         less
 
     ###############################
@@ -133,8 +134,7 @@ main() {
     cargo install \
         bat \
         exa \
-        git-delta \
-        zoxide
+        git-delta
 }
 
 install_packages() {

@@ -21,8 +21,6 @@ main() {
 
     # Run dotfiles install script
     $DOTFILES_REPO_DESTINATION/install.sh
-
-    exec fish
 }
 
 install_git() {

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+COMMIT_MESSAGE=${1:-"update"}
+
+git add --patch
+
+git commit --message "$COMMIT_MESSAGE"
+
+gup

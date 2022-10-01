@@ -40,3 +40,10 @@ end
 if type --quiet code
     set --universal EDITOR code
 end
+
+##############
+# Setup zoxide
+##############
+if type --quiet code
+    zoxide init fish | source
+end

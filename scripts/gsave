@@ -2,7 +2,7 @@
 
 set -e
 
-COMMIT_MESSAGE=${1:-"update"}
+COMMIT_MESSAGE="${*:-"update"}"
 
 git add --patch
 

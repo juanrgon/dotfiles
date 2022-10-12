@@ -51,3 +51,12 @@ end
 if type --quiet code
     zoxide init fish | source
 end
+
+#############
+# Setup pyenv
+#############
+if type --quiet pyenv
+    set --export PYENV_ROOT $HOME/.pyenv
+    set --export fish_user_paths $PYENV_ROOT/bin $fish_user_paths
+    pyenv init - | source
+end

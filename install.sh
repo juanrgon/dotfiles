@@ -136,6 +136,15 @@ main() {
         git-delta \
         zoxide
 
+    ###############
+    # Install pyenv
+    ###############
+    if command -v pyenv &> /dev/null; then
+        log "pyenv already installed"
+    else
+        log "Installing pyenv..."
+        curl https://pyenv.run | bash
+    fi
 }
 
 install_packages() {

@@ -25,6 +25,10 @@ switch (uname)
         if test -d /opt/homebrew/bin
             set --export fish_user_paths /opt/homebrew/bin $fish_user_paths
         end
+
+        if test -d /opt/homebrew/sbin
+            set --export fish_user_paths /opt/homebrew/sbin $fish_user_paths
+        end
 end
 
 #################################

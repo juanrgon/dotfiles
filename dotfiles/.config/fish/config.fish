@@ -59,4 +59,8 @@ if type --quiet pyenv
     set --export PYENV_ROOT $HOME/.pyenv
     set --export fish_user_paths $PYENV_ROOT/bin $fish_user_paths
     pyenv init - | source
+
+    if type --quiet pyenv-virtualenv-init
+        pyenv virtualenv-init - | source
+    end
 end

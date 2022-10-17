@@ -139,7 +139,7 @@ main() {
     ###############
     # Install pyenv
     ###############
-    if command -v pyenv &> /dev/null; then
+    if [ -d $HOME/.pyenv ]; then
         log "pyenv already installed"
     else
         log "Installing pyenv..."

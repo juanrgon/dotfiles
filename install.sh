@@ -49,7 +49,6 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
-    shortcut cat    bat
     shortcut d      docker
     shortcut dc     docker compose
     shortcut dcb    docker compose build
@@ -74,10 +73,6 @@ main() {
     shortcut grh    git reset HEAD
     shortcut gs     git status
     shortcut gup    'git push origin $(git_branch_name)'
-    shortcut ls     exa
-    shortcut l      ls
-    shortcut ll     ls --long --icons --group-directories-first --all
-    shortcut lt     ls --tree
 
     if os_is_linux; then
         if command -v fdfind &> /dev/null; then
@@ -135,6 +130,15 @@ main() {
         exa \
         git-delta \
         zoxide
+
+    ###################################################################
+    # Create shortcuts for rust alternatives to standard POSIX commands
+    ###################################################################
+    shortcut cat    bat
+    shortcut ls     exa
+    shortcut l      ls
+    shortcut ll     ls --long --icons --group-directories-first --all
+    shortcut lt     ls --tree
 
     ###############
     # Install pyenv

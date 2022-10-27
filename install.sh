@@ -134,6 +134,7 @@ main() {
     ###################################################################
     # Create shortcuts for rust alternatives to standard POSIX commands
     ###################################################################
+    log "Adding rust cli alternative shortcuts..."
     shortcut cat    bat
     shortcut ls     exa
     shortcut l      ls

@@ -6,6 +6,9 @@ set -e
 # destination for my personal scripts
 export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
 
+# destination for my shortcuts
+export SHORTCUTS_BIN="$HOME/shortcut/bin"
+
 # directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -42,6 +45,7 @@ main() {
     done
 
     export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
+    export SHORTCUT_BIN="$SHORTCUTS_BIN:$PATH"
 
     #################################################################################
     # Add shortcuts

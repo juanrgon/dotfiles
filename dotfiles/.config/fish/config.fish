@@ -17,6 +17,14 @@ mkdir -p $PERSONAL_SCRIPTS_DIR                          # Create personal script
 # NOTE using "set --universal" instead of "set --export" on fish_user_paths would cause it to get longer on each new shell
 set --export fish_user_paths $PERSONAL_SCRIPTS_DIR $fish_user_paths  # add personal scripts dir to the PATH
 
+######################################
+# Add my shortcuts bin dir to the PATH
+######################################
+set SHORTCUTS_BIN
+if test -d $SHORTCUTS_BIN
+    set --export fish_user_paths $SHORTCUTS_BIN $fish_user_paths
+end
+
 ##################################
 # Add homebrew bin dir to the PATH
 ##################################

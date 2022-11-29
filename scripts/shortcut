@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
 
-SHORTCUT_NAME=$1
-shift
+# An shell-agnostic alternative to aliases.
+# All shortcuts are saved as executable files in the ~/shortcut/bin directory.
+set -e
 
-/bin/cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
+SHORTCUT_BIN=$HOME/shortcut/bin
+
+# Make sure the shortcut directory exists
+mkdir -p $SHORTCUT_BIN
+
+# The first argument of the shortcut command is the name of the shortcut.
+# The rest of the arguments are the command to execute when calling the shortcut.
+SHORTCUT_NAME=$1
+shift  # scrap the first argument
+SHORTCUT_COMMAND="$*"
+
+# Create the shortcut file and make it executable
+SHORTCUT_FILENAME=$SHORTCUT_BIN/$SHORTCUT_NAME
+touch $SHORTCUT_FILENAME
+chmod +x $SHORTCUT_FILENAME
+
+# Generate the shortcut file
+/bin/cat << EOF > $SHORTCUT_FILENAME
 #!/usr/bin/env bash
 # Generated with shortcut command:
 #
-#   shortcut $SHORTCUT_NAME '$*'
+#   shortcut $SHORTCUT_NAME '$SHORTCUT_COMMAND'
 
-$* \$*
+$SHORTCUT_COMMAND \$*
 EOF
 
-chmod +x $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME

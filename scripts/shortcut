@@ -7,7 +7,7 @@ shift
 #!/usr/bin/env bash
 # Generated with shortcut command:
 #
-#   shortcut $SHORTCUT_NAME '\$*'
+#   shortcut $SHORTCUT_NAME '$*'
 
 $* \$*
 EOF

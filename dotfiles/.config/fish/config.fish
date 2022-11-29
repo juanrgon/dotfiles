@@ -20,9 +20,9 @@ set --export fish_user_paths $PERSONAL_SCRIPTS_DIR $fish_user_paths  # add perso
 ######################################
 # Add my shortcuts bin dir to the PATH
 ######################################
-set SHORTCUTS_BIN
+set SHORTCUTS_BIN "$HOME/shortcut/bin"
 if test -d $SHORTCUTS_BIN
-    set --export fish_user_paths $SHORTCUTS_BIN $fish_user_paths
+    set --export fish_user_paths "$SHORTCUTS_BIN" $fish_user_paths
 end
 
 ##################################

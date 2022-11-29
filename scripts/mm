@@ -2,6 +2,6 @@
 
 set -e
 
-git fetch origin
-git merge --no-edit origin $(git_main_branch_name)
+git fetch origin $(git_main_branch_name)
+git merge --no-edit origin/$(git_main_branch_name)
 git status;

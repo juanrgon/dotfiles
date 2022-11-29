@@ -5,6 +5,10 @@ shift
 
 /bin/cat << EOF > $PERSONAL_SCRIPTS_DIR/$SHORTCUT_NAME
 #!/usr/bin/env bash
+# Generated with shortcut command:
+#
+#   shortcut $SHORTCUT_NAME '\$*'
+
 $* \$*
 EOF
 

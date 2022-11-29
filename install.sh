@@ -13,6 +13,11 @@ export SHORTCUTS_BIN="$HOME/shortcut/bin"
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 main() {
+    if [[ "${1:-}" == "--debug" ]]; then
+        log "Debug mode enabled"
+        set -x
+    fi
+
     ####################################################################
     # Install OS packages needed to start fish and install other packages
     ####################################################################
@@ -258,4 +263,4 @@ error() {
 }
 export -f error
 
-main
+main $*

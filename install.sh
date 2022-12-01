@@ -126,8 +126,7 @@ main() {
     cargo install \
         bat \
         exa \
-        git-delta \
-        zoxide
+        git-delta
 
     ##########################
     # Add git-delta git config

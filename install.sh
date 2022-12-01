@@ -94,21 +94,10 @@ main() {
         fi
     fi
 
-    #################
+    ##################
     # Setup git config
-    #################
-    GIT_CONFIG=$HOME/.config/git/juanrgon.gitconfig
-    if git config --global --get-all include.path | grep $GIT_CONFIG > /dev/null; then
-        log "gitconfig already set up"
-    else
-        log "Setting up git config..."
-        git config --global --add include.path $GIT_CONFIG
-    fi
-
-    # If vscode is installed, make it the default git editor
-    if command -v code &> /dev/null; then
-        git config --global core.editor "code --wait"
-    fi
+    ##################
+    install_git_config $HOME/.config/git/juanrgon.gitconfig
 
     ########################
     # Install extra packages
@@ -139,6 +128,11 @@ main() {
         exa \
         git-delta \
         zoxide
+
+    ##########################
+    # Add git-delta git config
+    ##########################
+    install_git_config $HOME/.config/git/delta.gitconfig
 
     ###################################################################
     # Create shortcuts for rust alternatives to standard POSIX commands
@@ -262,5 +256,16 @@ error() {
     log "$* 😔"
 }
 export -f error
+
+install_git_config() {
+    GIT_CONFIG="$1"
+    if git config --global --get-all include.path | grep "$GIT_CONFIG" > /dev/null; then
+        log "$GIT_CONFIG already installed"
+    else
+        log "Setting up delta git config..."
+        git config --global --add include.path $GIT_CONFIG
+    fi
+}
+export -f install_git_config
 
 main $*

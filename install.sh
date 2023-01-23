@@ -77,7 +77,6 @@ main() {
     shortcut gdca   git diff --cached
     shortcut gf     git fetch --prune
     shortcut glg    git log --stat
-    shortcut gnb    git checkout -b
     shortcut grbi   git rebase --interactive
     shortcut grh    git reset HEAD
     shortcut gs     git status

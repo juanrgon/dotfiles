@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+# Query the OpenAI ChatGPT API.
+# Example usage:
+#   chatgpt "Hello, how are you?"
+#
+#   chatgpt '''
+#       translate this python code to bash:
+#
+#         def reverse(l):
+#             if len(l) == 1:
+#                 return l
+#             return reverse(l)
+#   '''
+
+
+
 if [ -z "$*" ]
   then
     echo "Error: missing query for ChatGPT."

@@ -11,7 +11,13 @@ if [[ -z "${OPENAI_API_KEY}" ]]; then
   exit 1
 fi
 
-query="$*"
+# Use a heredoc to support a multiline query to the API
+query=$(cat <<EOF
+$*
+EOF
+)
+query=$(echo "$query" | tr '\n' ' ')
+
 response=$(curl -sS https://api.openai.com/v1/chat/completions \
         -H "Authorization: Bearer $OPENAI_API_KEY" \
         -H "Content-Type: application/json" \

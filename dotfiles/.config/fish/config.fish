@@ -50,7 +50,7 @@ end
 # Set code as EDITOR if it is installed
 #######################################
 if type --quiet code
-    set --universal EDITOR code
+    set --export EDITOR code
 end
 
 ##############
@@ -71,4 +71,11 @@ if type --quiet pyenv
     if type --quiet pyenv-virtualenv-init
         pyenv virtualenv-init - | source
     end
+end
+
+#######################################
+# Source local.config.fish if it exists
+#######################################
+if test -f $HOME/.config/fish/local.config.fish
+    source $HOME/.config/fish/local.config.fish
 end

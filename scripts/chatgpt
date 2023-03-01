@@ -2,7 +2,7 @@
 
 # Query the OpenAI ChatGPT API.
 # Example usage:
-#   chatgpt "Hello, how are you?"
+#   chatgpt How do you say Hello in Japanese
 #
 #   chatgpt '''
 #       translate this python code to bash:

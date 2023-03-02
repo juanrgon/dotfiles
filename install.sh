@@ -125,7 +125,8 @@ main() {
     cargo install \
         bat \
         exa \
-        git-delta
+        git-delta \
+        chatgpt-cli
 
     ##########################
     # Add git-delta git config

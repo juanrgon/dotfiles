@@ -190,7 +190,7 @@ install_packages() {
         fi
     elif os_is_macos; then
         # Make sure we have brew installed
-        brew install $PKGS
+        brew install --quiet $PKGS
     else
         error "OS not supported 😔: $OSTYPE"
     fi

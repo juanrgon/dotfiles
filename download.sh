@@ -9,7 +9,7 @@ main() {
         install_git
     fi
 
-    DOTFILES_REPO_DESTINATION=$HOME/github/juanrgon/dotfiles
+    DOTFILES_REPO_DESTINATION=$HOME/github.com/juanrgon/dotfiles
 
     # Clone dotfiles repo to ~/github/juanrgon/dotfiles
     if [ -d $DOTFILES_REPO_DESTINATION ]; then

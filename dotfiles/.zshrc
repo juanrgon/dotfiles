@@ -73,7 +73,17 @@ if [[ -f "$HOME/.config/fish/local.config.fish" ]]; then
     source "$HOME/.config/fish/local.config.fish"
 fi
 
-. ~/git-prompt.sh
-export GIT_PS1_SHOWDIRTYSTATE=1
-export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '
+autoload -U add-zsh-hook
+add-zsh-hook precmd promptcmd
 
+setopt PROMPT_SUBST
+export PS1='%B%F{blue}%~ $(git_prompt_info)%f%b
+$ '
+
+# define function to add git information to prompt
+function git_prompt_info() {
+  git_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+  if [ $? -eq 0 ]; then
+    echo "%{$fg[yellow]%}($git_branch)"
+  fi
+}

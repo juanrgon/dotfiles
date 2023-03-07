@@ -73,8 +73,6 @@ if [[ -f "$HOME/.config/fish/local.config.fish" ]]; then
     source "$HOME/.config/fish/local.config.fish"
 fi
 
-__git_ps1() {
-    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
-}
-
+. ~/git-prompt.sh
+export GIT_PS1_SHOWDIRTYSTATE=1
 export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '

@@ -50,7 +50,7 @@ fi
 # Setup zoxide
 ##############
 if type -p zoxide >/dev/null; then
-    eval "$(zoxide init fish)"
+    eval "$(zoxide init zsh)"
 fi
 
 #############
@@ -66,11 +66,11 @@ if type -p pyenv >/dev/null; then
     fi
 fi
 
-#######################################
-# Source local.config.fish if it exists
-#######################################
-if [[ -f "$HOME/.config/fish/local.config.fish" ]]; then
-    source "$HOME/.config/fish/local.config.fish"
+##################################
+# Source ~/.local.zsh if it exists
+##################################
+if [[ -f "$HOME/.local.zsh" ]]; then
+    source "$HOME/.local.zsh"
 fi
 
 autoload -U add-zsh-hook

@@ -50,7 +50,7 @@ fi
 # Setup zoxide
 ##############
 if type -p zoxide >/dev/null; then
-    eval "$(zoxide init fish)"
+    eval "$(zoxide init bash)"
 fi
 
 #############
@@ -66,11 +66,11 @@ if type -p pyenv >/dev/null; then
     fi
 fi
 
-#######################################
-# Source local.config.fish if it exists
-#######################################
-if [[ -f "$HOME/.config/fish/local.config.fish" ]]; then
-    source "$HOME/.config/fish/local.config.fish"
+#####################################
+# Source ~/.local.bashrc if it exists
+#####################################
+if [[ -f "$HOME/.local.bashrc" ]]; then
+    source "$HOME/.local.bashrc"
 fi
 
 . ~/git-prompt.sh

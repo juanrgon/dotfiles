@@ -73,9 +73,6 @@ if [[ -f "$HOME/.local.zsh" ]]; then
     source "$HOME/.local.zsh"
 fi
 
-autoload -U add-zsh-hook
-add-zsh-hook precmd promptcmd
-
 setopt PROMPT_SUBST
 export PS1='%B%F{blue}%~ $(git_prompt_info)%f%b
 $ '

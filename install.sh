@@ -58,30 +58,32 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
-    shortcut cop   'github-copilot-cli what-the-shell'
-    shortcut d      docker
-    shortcut dc     docker compose
-    shortcut dcb    docker compose build
-    shortcut dcdn   docker compose down
-    shortcut dcr    docker compose run --rm
-    shortcut dcup   docker compose up
-    shortcut dfr    "cd $THIS_DIR && gdn && $THIS_DIR/install.sh"
-    shortcut g      git
-    shortcut ga     git add
-    shortcut gapa   git add --patch
-    shortcut gclean git clean --force -d
-    shortcut gcne   git commit --no-edit
-    shortcut gco    git checkout
-    shortcut gcom   'git checkout $(git_main_branch_name)'
-    shortcut gd     git diff
-    shortcut gdn    'git pull origin $(git_branch_name)'
-    shortcut gdca   git diff --cached
-    shortcut gf     git fetch --prune
-    shortcut glg    git log --stat
-    shortcut grbi   git rebase --interactive
-    shortcut grh    git reset HEAD
-    shortcut gs     git status
-    shortcut gup    'git push origin $(git_branch_name)'
+    shortcut cop    'github-copilot-cli what-the-shell'
+    shortcut copgit 'github-copilot-cli git-assist'
+    shortcut copgh  'github-copilot-cli gh-assist'
+    shortcut d       docker
+    shortcut dc      docker compose
+    shortcut dcb     docker compose build
+    shortcut dcdn    docker compose down
+    shortcut dcr     docker compose run --rm
+    shortcut dcup    docker compose up
+    shortcut dfr     "cd $THIS_DIR && gdn && $THIS_DIR/install.sh"
+    shortcut g       git
+    shortcut ga      git add
+    shortcut gapa    git add --patch
+    shortcut gclean  git clean --force -d
+    shortcut gcne    git commit --no-edit
+    shortcut gco     git checkout
+    shortcut gcom    'git checkout $(git_main_branch_name)'
+    shortcut gd      git diff
+    shortcut gdn     'git pull origin $(git_branch_name)'
+    shortcut gdca    git diff --cached
+    shortcut gf      git fetch --prune
+    shortcut glg     git log --stat
+    shortcut grbi    git rebase --interactive
+    shortcut grh     git reset HEAD
+    shortcut gs      git status
+    shortcut gup     'git push origin $(git_branch_name)'
 
     if os_is_linux; then
         if command -v fdfind &> /dev/null; then

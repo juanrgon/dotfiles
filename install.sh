@@ -58,6 +58,7 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
+    shortcut cop   'github-copilot-cli what-the-shell'
     shortcut d      docker
     shortcut dc     docker compose
     shortcut dcb    docker compose build

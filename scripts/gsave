@@ -4,8 +4,6 @@ set -e
 
 COMMIT_MESSAGE="${*:-"update"}"
 
-git add --patch
-
 git commit --message "$COMMIT_MESSAGE"
 
 gup

@@ -12,6 +12,7 @@ read -r response
 
 if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
   echo "Changes were not pushed."
+  exit 0
 fi
 
 echo "Pushing changes..."

@@ -134,7 +134,8 @@ main() {
         bat \
         exa \
         git-delta \
-        chatgpt-cli
+        chatgpt-cli \
+        tokei
 
     ##########################
     # Add git-delta git config

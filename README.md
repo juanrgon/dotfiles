@@ -3,7 +3,7 @@ My global dotfiles
 # Install
 
 ```
-curl --location https://raw.githubusercontent.com/juanrgon/dotfiles/master/download.sh | bash
+sudo curl --location https://raw.githubusercontent.com/juanrgon/dotfiles/master/download.sh | bash
 ```
 
 # Test

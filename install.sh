@@ -349,11 +349,11 @@ function setup_gh() {
 function install_node() {
     log "Installing node..."
 
+    # TODO: Support other OSes
     if ! os_is_macos; then
         return
     fi
 
-    # TODO: Support other OSes
     brew install node
 }
 

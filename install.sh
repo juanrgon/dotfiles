@@ -157,6 +157,11 @@ main() {
     #####################################
     macos_install_fonts
 
+    ##############
+    # Setup gh cli
+    ##############
+    setup_gh
+
     ###############
     # Install pyenv
     ###############
@@ -319,6 +324,22 @@ function macos_install_fonts() {
     brew install \
         font-fira-code-nerd-font \
         font-hasklug-nerd-font
+}
+
+function setup_gh() {
+    # TODO: Support other OSes
+    if ! os_is_macos; then
+        return
+    fi
+
+    log "Setting up gh cli..."
+    brew install gh
+
+    # Login to gh if not already logged in
+    if ! gh auth status &> /dev/null; then
+        log "Logging into gh cli..."
+        gh auth login
+    fi
 }
 
 main $*

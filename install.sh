@@ -182,7 +182,7 @@ install_packages() {
         # Make sure we have brew installed
         if ! command -v brew &> /dev/null; then
             log "Installing Homebrew..."
-            sudo $THIS_DIR/install/homebrew.sh
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
         fi
     else

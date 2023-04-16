@@ -296,6 +296,9 @@ function set_macos_settings() {
 
     # Make hidden apps visible in the dock
     defaults write com.apple.Dock showhidden -bool TRUE && killall Dock
+
+    # Change the default finder folder to ~/Downloads
+    defaults write com.apple.finder NewWindowTarget -string "PfLo"
 }
 
 main $*

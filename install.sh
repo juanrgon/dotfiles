@@ -271,7 +271,7 @@ install_git_config() {
     if git config --global --get-all include.path | grep "$GIT_CONFIG" > /dev/null; then
         log "$GIT_CONFIG already installed"
     else
-        log "Setting up delta git config..."
+        log "Setting up git config..."
         git config --global --add include.path $GIT_CONFIG
     fi
 }

@@ -125,7 +125,6 @@ main() {
         httpie \
         less
 
-
     ###############################
     # Setup rust and cargo packages
     ###############################
@@ -161,6 +160,11 @@ main() {
     # Setup gh cli
     ##############
     setup_gh
+
+    #############
+    # Install nvm
+    #############
+    install_node
 
     ###############
     # Install pyenv
@@ -340,6 +344,17 @@ function setup_gh() {
         log "Logging into gh cli..."
         gh auth login
     fi
+}
+
+function install_node() {
+    log "Installing node..."
+
+    if ! os_is_macos; then
+        return
+    fi
+
+    # TODO: Support other OSes
+    brew install node
 }
 
 main $*

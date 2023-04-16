@@ -152,6 +152,11 @@ main() {
     shortcut ll     ls --long --icons --group-directories-first --all
     shortcut lt     ls --tree
 
+    #####################################
+    # Install macos fonts for development
+    #####################################
+    macos_install_fonts
+
     ###############
     # Install pyenv
     ###############

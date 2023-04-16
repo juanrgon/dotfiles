@@ -18,6 +18,12 @@ main() {
         set -x
     fi
 
+    #######################
+    # Change MacOS settings
+    #######################
+    log "Changing MacOS settings..."
+    set_macos_settings
+
     ####################################################################
     # Install OS packages needed to start fish and install other packages
     ####################################################################
@@ -270,5 +276,26 @@ install_git_config() {
     fi
 }
 export -f install_git_config
+
+function set_macos_settings() {
+    if ! os_is_macos; then
+        return
+    fi
+
+    # Allow key repeat to work in all apps
+    defaults write -g ApplePressAndHoldEnabled -bool false
+
+    # Change the default photo save location to ~/Downloads
+    defaults write com.apple.screencapture location -string "${HOME}/Downloads"
+
+    # Disable the screenshot thumbnail
+    defaults write com.apple.screencapture show-thumbnail -bool false
+
+    # Faster dock hiding and unhiding
+    defaults write com.apple.dock autohide-delay -float 0; defaults write com.apple.dock autohide-time-modifier -int 0;killall Dock
+
+    # Make hidden apps visible in the dock
+    defaults write com.apple.Dock showhidden -bool TRUE && killall Dock
+}
 
 main $*

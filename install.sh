@@ -124,7 +124,8 @@ main() {
         fd \
         cargo \
         httpie \
-        less
+        less \
+        chatgpt-cli
 
     ###############################
     # Setup rust and cargo packages

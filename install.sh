@@ -21,7 +21,6 @@ main() {
     #######################
     # Change MacOS settings
     #######################
-    log "Changing MacOS settings..."
     set_macos_settings
 
     ####################################################################
@@ -124,8 +123,8 @@ main() {
         fd \
         cargo \
         httpie \
-        less \
-        chatgpt-cli
+        less
+
 
     ###############################
     # Setup rust and cargo packages
@@ -283,6 +282,8 @@ function set_macos_settings() {
         return
     fi
 
+    log "Changing MacOS settings..."
+
     # Allow key repeat to work in all apps
     defaults write -g ApplePressAndHoldEnabled -bool false
 
@@ -300,6 +301,19 @@ function set_macos_settings() {
 
     # Change the default finder folder to ~/Downloads
     defaults write com.apple.finder NewWindowTarget -string "PfLo"
+}
+
+function macos_install_fonts() {
+    log "Installing fonts..."
+
+    if ! os_is_macos; then
+        return
+    fi
+
+    brew tap homebrew/cask-fonts
+    brew install \
+        font-fira-code-nerd-font \
+        font-hasklug-nerd-font
 }
 
 main $*

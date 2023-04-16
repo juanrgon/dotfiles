@@ -175,7 +175,8 @@ install_packages() {
         # Make sure we have brew installed
         if ! command -v brew &> /dev/null; then
             log "Installing Homebrew..."
-            $THIS_DIR/install/homebrew.sh
+            sudo $THIS_DIR/install/homebrew.sh
+            export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
         fi
     else
         log "FAILED TO INSTALL PACKAGES"

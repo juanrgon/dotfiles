@@ -63,7 +63,7 @@ end
 #############
 # Setup pyenv
 #############
-if type --quiet pyenv
+if test -d $PYENV_ROOT/bin
     set --export PYENV_ROOT $HOME/.pyenv
     set --export fish_user_paths $PYENV_ROOT/bin $fish_user_paths
     pyenv init - | source

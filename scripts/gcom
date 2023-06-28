@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Switch to the latest version of master from origin
+git fetch origin master
+git checkout master
+
+# Check if local master is ahead of origin/master
+if git rev-list --count --left-right master...origin/master | grep -q '^>'; then
+  echo "Local master is ahead of origin/master. Skipping git pull origin master."
+  exit 1
+fi
+
+# Pull the latest changes from origin
+git pull origin master

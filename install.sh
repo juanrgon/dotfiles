@@ -79,7 +79,6 @@ main() {
     shortcut gclean  git clean --force -d
     shortcut gcne    git commit --no-edit
     shortcut gco     git checkout
-    shortcut gcom    'git checkout $(git_main_branch_name)'
     shortcut gd      git diff
     shortcut gdn     'git pull origin $(git_branch_name)'
     shortcut gdca    git diff --cached

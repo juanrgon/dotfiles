@@ -10,7 +10,11 @@ if git show-ref --verify --quiet refs/heads/origin/$(git_main_branch_name); then
   git branch -D origin/$(git_main_branch_name)
 fi
 
+# Rebase the latest version of the main branch from origin. If the rebase wouldn't be automatic, then perform a merge instead.
+git rebase ... || git rebase --abort && git merge --no-edit origin/$(git_main_branch_name)
+
 # Merge in the latest version of the main branch from origin
+# TODO: If possible to do cleanly, perform a git rebase instead of a git merge
 git merge --no-edit origin/$(git_main_branch_name)
 
 # Print the status of the repo in case there are merge conflicts

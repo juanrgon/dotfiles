@@ -2,6 +2,16 @@
 
 set -e
 
+# Get the name of the main branch
 git fetch origin $(git_main_branch_name)
+
+# Delete any local branch named origin/$(git_main_branch_name) if it exists. This breaks the git merge command otherwise.
+if git show-ref --verify --quiet refs/heads/origin/$(git_main_branch_name); then
+  git branch -D origin/$(git_main_branch_name)
+fi
+
+# Merge in the latest version of the main branch from origin
 git merge --no-edit origin/$(git_main_branch_name)
+
+# Print the status of the repo in case there are merge conflicts
 git status;

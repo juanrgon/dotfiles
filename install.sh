@@ -175,6 +175,11 @@ main() {
         log "Installing pyenv..."
         curl https://pyenv.run | bash
     fi
+
+    ############################
+    # Add git-hooks to this repo
+    ############################
+    cp $THIS_DIR/git-hooks/* $THIS_DIR/.git/hooks/
 }
 
 install_packages() {

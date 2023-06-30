@@ -6,7 +6,7 @@ echo "[post-commit hook] Commit done!"
 exec < /dev/tty
 
 # Ask if the user wants to reload their dotfiles
-printf "\033[1mDo you want to reload your dotfiles? (y/N)\033[0m [y/N] "
+printf "\033[1mDo you want to reload your dotfiles?\033[0m [y/N] "
 
 read -r response
 

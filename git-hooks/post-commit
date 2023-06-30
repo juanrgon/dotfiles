@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo here
 # Ask if the user wants to reload their dotfiles
 read -p "Do you want to reload your dotfiles? (y/n) " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then

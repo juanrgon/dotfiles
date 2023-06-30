@@ -12,5 +12,6 @@ read -r response
 
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Reloading dotfiles..."
-    dfr
+    REPO_DIR="$(git rev-parse --show-toplevel)"
+    $REPO_DIR/install.sh
 fi

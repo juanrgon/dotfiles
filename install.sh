@@ -179,6 +179,7 @@ main() {
     ############################
     # Add git-hooks to this repo
     ############################
+    echo test
     cp $THIS_DIR/git-hooks/* $THIS_DIR/.git/hooks/
 }
 

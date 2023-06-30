@@ -346,6 +346,8 @@ function setup_gh() {
     fi
 }
 
+afeaf
+
 function install_node() {
     # Skip if node is already installed
     if command -v node &> /dev/null; then

@@ -6,11 +6,11 @@ echo "[post-commit hook] Commit done!"
 exec < /dev/tty
 
 # Ask if the user wants to reload their dotfiles
-printf  "\033[1mDo you want to reload your dotfiles? (y/N)\033[0m [Y/n] "
+printf "\033[1mDo you want to reload your dotfiles? (y/N)\033[0m [y/N] "
+
 read -r response
 
-if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
-    echo
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "Reloading dotfiles..."
     dfr
 fi

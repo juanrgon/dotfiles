@@ -347,6 +347,12 @@ function setup_gh() {
 }
 
 function install_node() {
+    # Skip if node is already installed
+    if command -v node &> /dev/null; then
+        log "node already installed"
+        return
+    fi
+
     log "Installing node..."
 
     # TODO: Support other OSes

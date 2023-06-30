@@ -7,17 +7,46 @@
 # Note: This script uses ANSI escape codes to manipulate the cursor and the terminal screen,
 # which might not work correctly in all terminal emulators.
 
-# Usage: live-tail <command>
 # Example: live-tail ping google.com
+
+# Usage: live-tail [OPTIONS] <command>
+# Options:
+#   -N    Display N lines instead of 10
+#   --tee <file>    Tee the output to the specified file
+
+# Default number of lines
+number_of_lines=10
+
+# Default temporary file
+tmpfile=$(mktemp)
+
+# Process command-line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -[0-9]*)
+      number_of_lines=${1#-}
+      shift
+      ;;
+    --tee)
+      if [[ -n "$2" ]]; then
+        tmpfile=$2
+        shift 2
+      else
+        echo "Error: File name is missing for --tee option."
+        exit 1
+      fi
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 # check if command line arguments are provided
 if [ $# -eq 0 ]; then
     echo "No command provided. Usage: $0 <command>"
     exit 1
 fi
-
-# create a temporary file
-tmpfile=$(mktemp)
 
 # start the command and send its output to the file
 "$@" > "$tmpfile" 2>&1 &
@@ -33,11 +62,18 @@ while true; do
   if ! kill -0 $pid 2> /dev/null; then
     wait $pid
     exit_status=$?
+    # Remove ANSI escape codes from the output file
     rm -f "$tmpfile"
+
+    # if the exit status is 0, clear the output
+    if [ $exit_status -eq 0 ]; then
+        printf "\0338\033[J\0337"
+    fi
+
     exit $exit_status
   fi
 
-  output="$(tail -n 10 "$tmpfile")"
+  output="$(tail -n $number_of_lines "$tmpfile")"
 
   if [ "$output" != "$old_output" ]; then
     # restore to saved cursor position, clear below, save cursor position again

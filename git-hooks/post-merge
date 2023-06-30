@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Allows us to read user input below, assigns stdin to keyboard
+exec < /dev/tty
+
+# Ask if the user wants to reload their dotfiles
+printf "\033[1mDo you want to reload your dotfiles?\033[0m [y/N] "
+
+read -r response
+
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Reloading dotfiles..."
+    REPO_DIR="$(git rev-parse --show-toplevel)"
+    $REPO_DIR/install.sh
+fi

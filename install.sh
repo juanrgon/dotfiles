@@ -179,6 +179,7 @@ main() {
     ############################
     # Add git-hooks to this repo
     ############################
+    chmod +x $THIS_DIR/git-hooks/*
     cp $THIS_DIR/git-hooks/* $THIS_DIR/.git/hooks/
 }
 

@@ -25,7 +25,6 @@ function fish_greeting
     printf '\e[38;5;226m┃                         `"MMMMMMMMMMMMMMMMMMMMMMM"`                          ┃\n'
     printf '\e[38;5;226m┃                             `""MMMMMMMMMMMMM""`                              ┃\n'
     printf '\e[38;5;226m┃                                                                              ┃\n'
-    printf '\e[38;5;226m┃                                   GitHub                                     ┃\n'
     printf '\e[38;5;226m┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'
     printf '\e[0m'
 end

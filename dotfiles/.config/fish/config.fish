@@ -53,13 +53,6 @@ if type --quiet code
     set --export EDITOR code
 end
 
-##############
-# Setup zoxide
-##############
-if type --quiet zoxide
-    zoxide init fish | source
-end
-
 #############
 # Setup pyenv
 #############

@@ -125,6 +125,7 @@ main() {
         less
 
     install_onepassword_cli
+    install_awscli
 
     ###############################
     # Setup rust and cargo packages

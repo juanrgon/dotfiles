@@ -362,6 +362,12 @@ function setup_gh() {
     fi
 }
 
+function install_awscli() {
+    if os_is_macos; then
+        brew install awscli
+    fi
+}
+
 function install_node() {
     # Skip if node is already installed
     if command -v node &> /dev/null; then

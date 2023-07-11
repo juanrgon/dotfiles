@@ -124,6 +124,8 @@ main() {
         httpie \
         less
 
+    install_onepassword_cli
+
     ###############################
     # Setup rust and cargo packages
     ###############################
@@ -336,6 +338,12 @@ function macos_install_fonts() {
     brew install \
         font-fira-code-nerd-font \
         font-hasklug-nerd-font
+}
+
+function install_onepassword_cli() {
+    if ! os_is_macos; then
+        brew install --cask 1password/tap/1password-cli
+    fi
 }
 
 function setup_gh() {

@@ -2,20 +2,22 @@
 
 set -e
 
+MAIN=$(git_main_branch_name)
+
 # Get the name of the main branch
-git fetch origin $(git_main_branch_name)
+git fetch origin $MAIN
 
 # Delete any local branch named origin/$(git_main_branch_name) if it exists. This breaks the git merge command otherwise.
-if git show-ref --verify --quiet refs/heads/origin/$(git_main_branch_name); then
-  git branch -D origin/$(git_main_branch_name)
+if git show-ref --verify --quiet refs/heads/origin/$MAIN; then
+  git branch -D origin/$MAIN
 fi
 
 # Rebase the latest version of the main branch from origin. If the rebase wouldn't be automatic, then perform a merge instead.
-git rebase ... || git rebase --abort && git merge --no-edit origin/$(git_main_branch_name)
+git rebase $MAIN || git rebase --abort && git merge --no-edit origin/$MAIN
 
 # Merge in the latest version of the main branch from origin
 # TODO: If possible to do cleanly, perform a git rebase instead of a git merge
-git merge --no-edit origin/$(git_main_branch_name)
+git merge --no-edit origin/$MAIN
 
 # Print the status of the repo in case there are merge conflicts
 git status;

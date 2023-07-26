@@ -37,23 +37,19 @@ main() {
     # Sync dotfiles
     ##############
     log "Syncing dotfiles..."
-    rsync $THIS_DIR/dotfiles/ $HOME/ -r
+    rsync --recursive $THIS_DIR/dotfiles/ $HOME/  # WARNING: Never --delete here, or you'll delete your home directory
 
     ################################################
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
     ################################################
     log "Importing personal scripts..."
-    mkdir -p "$PERSONAL_SCRIPTS_DIR"                         # Create personal scripts dir
-    cp $THIS_DIR/scripts/* $PERSONAL_SCRIPTS_DIR             # Copy scripts to my personal scripts dir
+    mkdir -p "$PERSONAL_SCRIPTS_DIR"                            # Create personal scripts dir
+    rsync --delete $THIS_DIR/scripts/* $PERSONAL_SCRIPTS_DIR    # Copy scripts to my personal scripts dir
 
     # Make personal scripts files executable
-    for SCRIPT in $PERSONAL_SCRIPTS_DIR/*;
-    do
-        if [ -f $SCRIPT ]; then
-            chmod +x $SCRIPT
-        fi
-    done
+    chmod +x $PERSONAL_SCRIPTS_DIR/*;
 
+    # Add personal scripts and shortcuts bin directories to $PATH
     export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
     export SHORTCUT_BIN="$SHORTCUTS_BIN:$PATH"
 
@@ -63,31 +59,31 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
-    shortcut cop    'github-copilot-cli what-the-shell'
-    shortcut copgit 'github-copilot-cli git-assist'
-    shortcut copgh  'github-copilot-cli gh-assist'
-    shortcut d       docker
-    shortcut dc      docker compose
-    shortcut dcb     docker compose build
-    shortcut dcdn    docker compose down
-    shortcut dcr     docker compose run --rm
-    shortcut dcup    docker compose up
-    shortcut dfr     "cd $THIS_DIR && gdn && $THIS_DIR/install.sh"
-    shortcut g       git
-    shortcut ga      git add
-    shortcut gapa    git add --patch
-    shortcut gclean  git clean --force -d
-    shortcut gcne    git commit --no-edit
-    shortcut gco     git checkout
-    shortcut gd      git diff
-    shortcut gdn     'git pull origin $(git_branch_name)'
-    shortcut gdca    git diff --cached
-    shortcut gf      git fetch --prune
-    shortcut glg     git log --stat
-    shortcut grbi    git rebase --interactive
-    shortcut grh     git reset HEAD
-    shortcut gs      git status
-    shortcut gup     'git push origin $(git_branch_name)'
+    shortcut copilot    'github-copilot-cli what-the-shell'
+    shortcut copilot-git 'github-copilot-cli git-assist'
+    shortcut copilot-gh  'github-copilot-cli gh-assist'
+    shortcut d           docker
+    shortcut dc          docker compose
+    shortcut dcb         docker compose build
+    shortcut dcdn        docker compose down
+    shortcut dcr         docker compose run --rm
+    shortcut dcup        docker compose up
+    shortcut dfr         "cd $THIS_DIR && gdn && $THIS_DIR/install.sh"
+    shortcut g           git
+    shortcut ga          git add
+    shortcut gapa        git add --patch
+    shortcut gclean      git clean --force -d
+    shortcut gcne        git commit --no-edit
+    shortcut gco         git checkout
+    shortcut gd          git diff
+    shortcut gdn         'git pull origin $(git_branch_name)'
+    shortcut gdca        git diff --cached
+    shortcut gf          git fetch --prune
+    shortcut glg         git log --stat
+    shortcut grbi        git rebase --interactive
+    shortcut grh         git reset HEAD
+    shortcut gs          git status
+    shortcut gup         'git push origin $(git_branch_name)'
 
     if os_is_linux; then
         if command -v fdfind &> /dev/null; then
@@ -96,6 +92,7 @@ main() {
         fi
 
         if command -v batcat &> /dev/null; then
+            log "Fixing bat for ubuntu..."
             shortcut bat batcat
         fi
     fi
@@ -164,9 +161,9 @@ main() {
     ##############
     setup_gh
 
-    #############
-    # Install nvm
-    #############
+    ##############
+    # Install node
+    ##############
     install_node
 
     ###############
@@ -380,6 +377,7 @@ function install_node() {
 
     # TODO: Support other OSes
     if ! os_is_macos; then
+        install_packages nodejs
         return
     fi
 

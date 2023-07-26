@@ -72,3 +72,7 @@ end
 if test -f $HOME/.config/fish/local.config.fish
     source $HOME/.config/fish/local.config.fish
 end
+
+if test -f $HOME/.config/op/plugins.sh
+    source /Users/juanrgon/.config/op/plugins.sh
+end

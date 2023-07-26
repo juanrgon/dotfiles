@@ -124,6 +124,9 @@ main() {
         httpie \
         less
 
+    install_onepassword_cli
+    install_awscli
+
     ###############################
     # Setup rust and cargo packages
     ###############################
@@ -338,6 +341,12 @@ function macos_install_fonts() {
         font-hasklug-nerd-font
 }
 
+function install_onepassword_cli() {
+    if os_is_macos; then
+        brew install --cask 1password/tap/1password-cli
+    fi
+}
+
 function setup_gh() {
     # TODO: Support other OSes
     if ! os_is_macos; then
@@ -351,6 +360,12 @@ function setup_gh() {
     if ! gh auth status &> /dev/null; then
         log "Logging into gh cli..."
         gh auth login
+    fi
+}
+
+function install_awscli() {
+    if os_is_macos; then
+        brew install awscli
     fi
 }
 

@@ -43,7 +43,7 @@ main() {
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
     ################################################
     log "Importing personal scripts..."
-    mkdir -p "$PERSONAL_SCRIPTS_DIR"                            # Create personal scripts dir
+    mkdir -p "$PERSONAL_SCRIPTS_DIR"                                        # Create personal scripts dir
     rsync --delete --recursive $THIS_DIR/scripts/* $PERSONAL_SCRIPTS_DIR    # Copy scripts to my personal scripts dir
 
     # Make personal scripts files executable

@@ -117,10 +117,11 @@ main() {
         rsync \
         tree \
         fd \
-        cargo \
         httpie \
         less
 
+    install_openssl
+    install_rust
     install_onepassword_cli
     install_awscli
 
@@ -134,7 +135,7 @@ main() {
         exa \
         git-delta \
         chatgpt-cli \
-        tokei
+        tokei || log "Warning: Failed to install rust packages"
 
     ##########################
     # Add git-delta git config
@@ -145,11 +146,16 @@ main() {
     # Create shortcuts for rust alternatives to standard POSIX commands
     ###################################################################
     log "Adding rust cli alternative shortcuts..."
-    shortcut cat    bat
-    shortcut ls     exa
-    shortcut l      ls
-    shortcut ll     ls --long --icons --group-directories-first --all
-    shortcut lt     ls --tree
+    if [ -x bat ]; then
+        shortcut cat    bat
+    fi
+
+    if [ -x exa ]; then
+        shortcut ls     exa
+        shortcut l      ls
+        shortcut ll     ls --long --icons --group-directories-first --all
+        shortcut lt     ls --tree
+    fi
 
     #####################################
     # Install macos fonts for development
@@ -382,6 +388,24 @@ function install_node() {
     fi
 
     brew install node
+}
+
+function install_openssl() {
+    if os_is_linux; then
+        log "Installing openssl..."
+        install_packages \
+            openssl \
+            libssl-dev
+    fi
+}
+
+function install_rust() {
+    if command -v rustup &> /dev/null; then
+        return
+    fi
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    log "rustup already installed"
 }
 
 main $*

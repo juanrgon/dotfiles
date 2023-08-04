@@ -33,5 +33,5 @@ jobs:
           context: .
           file: ${{ env.DOCKERFILE_PATH }}
           push: true
-          tags: ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }},ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }}/latest
+          tags: ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }},ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
           build-args: ${{ env.DOCKER_BUILD_ARGS }}

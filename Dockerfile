@@ -6,6 +6,6 @@ WORKDIR /root/github.com/juanrgon/dotifles
 
 RUN ./install.sh
 
-RUN rm -rf ./git
+WORKDIR /
 
 CMD ["sh", "-c", "fish"]

@@ -1,9 +1,11 @@
 FROM ubuntu
 
-COPY . /root
+COPY . /root/github.com/juanrgon/dotifles
 
-WORKDIR /root
+WORKDIR /root/github.com/juanrgon/dotifles
 
 RUN ./install.sh
+
+RUN rm -rf ./git
 
 CMD ["sh", "-c", "fish"]

@@ -347,6 +347,7 @@ function macos_install_fonts() {
 function install_onepassword_cli() {
     if os_is_macos; then
         brew install --cask 1password/tap/1password-cli
+        shortcut opaws 'op plugin run -- aws'
     fi
 }
 

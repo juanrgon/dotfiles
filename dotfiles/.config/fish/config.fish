@@ -76,3 +76,12 @@ end
 if test -f $HOME/.config/op/plugins.sh
     source /Users/juanrgon/.config/op/plugins.sh
 end
+
+
+############
+# Set GOPATH
+############
+if test -d $HOME/go
+    set -x GOPATH $HOME/go
+    set -x PATH $GOPATH/bin $PATH
+end

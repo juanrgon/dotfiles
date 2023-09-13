@@ -33,6 +33,13 @@ main() {
         git \
         curl
 
+    ###########################################
+    # Install homebrew if not already installed
+    #
+    # NOTE: requires git and curl on linux
+    ###########################################
+    install_homebrew
+
     ##############
     # Sync dotfiles
     ##############
@@ -207,11 +214,7 @@ install_packages() {
         PKGS="$PKGS build-essential"
     elif os_is_macos; then
         # Make sure we have brew installed
-        if ! command -v brew &> /dev/null; then
-            log "Installing Homebrew..."
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
-        fi
+        install_homebrew
     else
         log "FAILED TO INSTALL PACKAGES"
         log "OS not supported 😔: $OSTYPE"
@@ -407,6 +410,16 @@ function install_rust() {
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     log "rustup already installed"
+}
+
+function install_homebrew() {
+    if ! command -v brew &> /dev/null; then
+        log "Installing Homebrew..."
+        echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
+    fi
+
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 }
 
 main $*

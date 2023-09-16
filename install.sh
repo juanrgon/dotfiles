@@ -158,10 +158,9 @@ main() {
     fi
 
     if [ -x exa ]; then
-        shortcut ls     exa
-        shortcut l      ls
-        shortcut ll     ls --long --icons --group-directories-first --all
-        shortcut lt     ls --tree
+        shortcut l      exa
+        shortcut ll     exa --long --icons --group-directories-first --all
+        shortcut lt     exa --tree
     fi
 
     #####################################

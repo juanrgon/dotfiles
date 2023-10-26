@@ -79,9 +79,6 @@ function streamline_prompt
     echo -n -s (set_color normal) (set_color $bg_color) $divider ' '
 end
 
-############
-# STREAMLINE
-############
 function streamline_os_icon_segment
     set -l os_icon
     switch (uname)
@@ -131,6 +128,44 @@ function streamline_second_line_leader
     echo blue
 end
 
+# Function to randomly select an emoji from a given list
+function choose_random_emoji
+    set -l emojis $argv
+    set -l count (count $emojis)
+
+    # Check if the count is zero, which means the list is empty
+    if test $count -eq 0
+        echo "List of emojis is empty."
+        return 1
+    end
+
+    set -l index (math (random 1 $count))
+    echo $emojis[$index]
+end
+
+function thanksgiving_week
+    set -l year (date "+%Y")
+
+    # Get the day of the week for November 1 of the given year
+    set -l first (date -u -d "$year-11-01T00:00:00Z" +%u 2>/dev/null; or date -u -jf "%Y-%m-%d %H:%M:%S %z" "$year-11-01 00:00:00 +0000" +%u)
+
+    # Determine the date for the first Thursday of November
+    set -l first_thursday (math "1 + ((4 - $first + 7) % 7)")
+
+    # Add 21 to get Thanksgiving
+    set -l thanksgiving_date (math "$first_thursday + 21")
+
+    # Calculate the 7 days leading up to Thanksgiving
+    for i in (seq 0 6)
+        set -l day (math "$thanksgiving_date - $i")
+        if test $day -lt 10
+            echo "11-0$day"
+        else
+            echo "11-$day"
+        end
+    end | sort
+end
+
 function streamline_holiday_segment
     set -l current_date (date "+%m-%d")
     set -l holiday_emoji
@@ -138,14 +173,14 @@ function streamline_holiday_segment
 
     # Matching based on the date
     switch $current_date
-        # Week before New Year, December 25-31
-        case '12-25' '12-26' '12-27' '12-28' '12-29' '12-30' '12-31'
+        # Week of New Year's
+        case '12-26' '12-27' '12-28' '12-29' '12-30' '12-31' '01-01'
             set -l new_year_emojis "🎉" "🍾" "🎆" "🕛" "🎊"
             set holiday_emoji (choose_random_emoji $new_year_emojis)
             set bg_color "blue"
 
-        # Week before Valentine's Day, February 7-13
-        case '02-07' '02-08' '02-09' '02-10' '02-11' '02-12' '02-13'
+        # Week of Valentine's Day
+        case '02-08' '02-09' '02-10' '02-11' '02-12' '02-13' '02-14'
             set -l valentines_emojis "💘" "❤️" "💝" "🌹" "💌"
             set holiday_emoji (choose_random_emoji $valentines_emojis)
             set bg_color "#FFC0CB"
@@ -155,36 +190,31 @@ function streamline_holiday_segment
             set holiday_emoji "☘️"
             set bg_color "green"
 
-        # Week before Independence Day, June 27 - July 3
-        case '06-27' '06-28' '06-29' '06-30' '07-01' '07-02' '07-03'
+        # Week of Independence Day
+        case '06-28' '06-29' '06-30' '07-01' '07-02' '07-03' '07-04'
             set -l independence_emojis "🇺🇸" "🎆" "🗽" "🦅" "🎉"
             set holiday_emoji (choose_random_emoji $independence_emojis)
             set bg_color "blue"
 
-        # Week before Labor Day, date can vary but approximated as late August to early September
-        case '08-26' '08-27' '08-28' '08-29' '08-30' '08-31' '09-01'
-            set holiday_emoji "🛠"
-            set bg_color "grey"
-
-        # Week before Halloween, October 24-30
-        case '10-24' '10-25' '10-26' '10-27' '10-28' '10-29' '10-30'
+        # Week of Halloween
+        case '10-25' '10-26' '10-27' '10-28' '10-29' '10-30' '10-31'
             set -l halloween_emojis "🎃" "👻" "🦇" "🕸" "🕷"
             set holiday_emoji (choose_random_emoji $halloween_emojis)
             set bg_color "#333333"  # Charcoal grey
 
-        # Week before Thanksgiving, approximated as November 18-24
-        case '11-18' '11-19' '11-20' '11-21' '11-22' '11-23' '11-24'
+        # Week of Thanksgiving
+        case (thanksgiving_week)
             set -l thanksgiving_emojis "🦃" "🌽" "🥧" "🍂" "🍗"
             set holiday_emoji (choose_random_emoji $thanksgiving_emojis)
             set bg_color "#FFA500"
 
-        # Week before Christmas, December 18-24
-        case '12-18' '12-19' '12-20' '12-21' '12-22' '12-23' '12-24'
+        # Week of Christmas
+        case '12-19' '12-20' '12-21' '12-22' '12-23' '12-24' '12-25'
             set -l christmas_emojis "🎄" "🎅" "🤶" "🦌" "⛄" "🔔" "🎁"
             set holiday_emoji (choose_random_emoji $christmas_emojis)
             set bg_color "green"
 
-        # If no holiday is upcoming, display season emoji
+        # If no holiday, display season emoji
         case '*'
             set -l current_month (date "+%m")
             set -l season_emoji
@@ -212,19 +242,4 @@ function streamline_holiday_segment
     echo $holiday_emoji
     echo $bg_color
     echo white
-end
-
-# Function to randomly select an emoji from a given list
-function choose_random_emoji
-    set -l emojis $argv
-    set -l count (count $emojis)
-
-    # Check if the count is zero, which means the list is empty
-    if test $count -eq 0
-        echo "List of emojis is empty."
-        return 1
-    end
-
-    set -l index (math (random 1 $count))
-    echo $emojis[$index]
 end

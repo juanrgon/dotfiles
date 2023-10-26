@@ -1,7 +1,9 @@
 
 function fish_prompt
     echo
-    set -l segments streamline_holiday_segment streamline_pwd_segment streamline_git_segment \n
+
+    set -x segments streamline_holiday_segment streamline_pwd_segment streamline_git_segment \n
+    set -x streamline_leaders streamline_first_line_leader streamline_second_line_leader
 
     if set -q streamline_segments
         set segments $streamline_segments
@@ -222,8 +224,3 @@ function choose_random_emoji
     set -l index (math (random 1 $count))
     echo $emojis[$index]
 end
-
-set -x segments streamline_holiday_segment streamline_pwd_segment streamline_git_segment \n
-
-# define leaders to display on each line of the prompt
-set -x streamline_leaders streamline_first_line_leader streamline_second_line_leader

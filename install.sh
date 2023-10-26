@@ -12,6 +12,8 @@ export SHORTCUTS_BIN="$HOME/shortcut/bin"
 # directory of this script. NOTE: cd and pwd are used to get the absolute path, not the relative path.
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 main() {
     if [[ "${1:-}" == "--debug" ]]; then
         log "Debug mode enabled"

@@ -168,8 +168,8 @@ function streamline_holiday_segment
 
         # Week before Halloween, October 24-30
         case '10-24' '10-25' '10-26' '10-27' '10-28' '10-29' '10-30'
-            set -l holiday_emojis "🎃" "👻" "🦇" "🕸" "🕷"
-            set holiday_emoji (choose_random_emoji $holiday_emojis)
+            set -l halloween_emojis "🎃" "👻" "🦇" "🕸" "🕷"
+            set holiday_emoji (choose_random_emoji $halloween_emojis)
             set bg_color "#333333"  # Charcoal grey
 
         # Week before Thanksgiving, approximated as November 18-24
@@ -189,20 +189,24 @@ function streamline_holiday_segment
             set -l current_month (date "+%m")
             set -l season_emoji
             switch $current_month
+                # Winter
                 case '12' '01' '02'
-                    set season_emoji "❄️"   # Winter
+                    set season_emojis "❄️" "⛄" "🧣"
                     set bg_color "#ADD8E6" # Light Blue
+                # Spring
                 case '03' '04' '05'
-                    set season_emoji "🌸"   # Spring
+                    set season_emojis "🌸" "🌼" "🦋"
                     set bg_color "#FFC0CB"  # Pink
+                # Summer
                 case '06' '07' '08'
-                    set season_emoji "☀️"   # Summer
+                    set season_emojis "☀️" "🏖️" "🍦"
                     set bg_color "#FFFF00"  # Yellow
+                # Fall
                 case '09' '10' '11'
-                    set season_emoji "🍂"  # Autumn
+                    set season_emojis "🍂" "🍁" "🍄"
                     set bg_color "#FFA500" # Orange
             end
-            set holiday_emoji $season_emoji
+            set holiday_emoji (choose_random_emoji $season_emojis)
     end
 
     echo $holiday_emoji

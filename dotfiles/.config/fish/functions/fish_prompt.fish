@@ -198,7 +198,7 @@ function streamline_holiday_segment
 
         # Week of Halloween
         case '10-25' '10-26' '10-27' '10-28' '10-29' '10-30' '10-31'
-            set -l halloween_emojis "🎃" "👻" "🦇" "🕸" "🕷"
+            set -l halloween_emojis "🎃" "👻" "🦇"
             set holiday_emoji (choose_random_emoji $halloween_emojis)
             set bg_color "#333333"  # Charcoal grey
 

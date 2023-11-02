@@ -20,11 +20,6 @@ main() {
         set -x
     fi
 
-    #######################
-    # Change MacOS settings
-    #######################
-    set_macos_settings
-
     ####################################################################
     # Install OS packages needed to start fish and install other packages
     ####################################################################
@@ -197,6 +192,11 @@ main() {
     rm -rf $THIS_DIR/.git/hooks/*
     mkdir -p $THIS_DIR/.git/hooks/
     cp $THIS_DIR/git-hooks/* $THIS_DIR/.git/hooks/
+
+    #######################
+    # Change MacOS settings
+    #######################
+    set_macos_settings
 }
 
 install_packages() {

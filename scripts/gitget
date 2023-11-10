@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Function to get the authenticated user's GitHub handle
+get_github_handle() {
+    gh api user --jq '.login'
+}
+
+# Function to parse org and repo from URL or slug
+parse_git_url() {
+    if [[ $1 =~ ^http ]]; then
+        # Parse org and repo from the URL
+        ORG=$(echo $1 | cut -d '/' -f 4)
+        REPO=$(echo $1 | cut -d '/' -f 5)
+    else
+        # Parse org and repo from the slug
+        ORG=$(echo $1 | cut -d '/' -f 1)
+        REPO=$(echo $1 | cut -d '/' -f 2)
+    fi
+
+    # Use the authenticated user's GitHub handle if no org is provided
+    if [ -z "$REPO" ]; then
+        REPO=$ORG
+        ORG=$(get_github_handle)
+    fi
+}
+
+# Check if a repository argument is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <repo> or <org>/<repo> or full repo URL"
+    exit 1
+fi
+
+# Parse org and repo from the input
+parse_git_url "$1"
+
+# Define the target directory
+TARGET_DIR="$HOME/github.com/$ORG/$REPO"
+
+# Check if the target directory already exists
+if [ -d "$TARGET_DIR" ]; then
+    echo "The directory $TARGET_DIR already exists."
+    exit 1
+fi
+
+# Create the target directory
+mkdir -p "$TARGET_DIR"
+
+# Change to the target directory
+cd "$TARGET_DIR" || exit
+
+# Clone the repository using the 'gh' command
+gh repo clone "$ORG/$REPO" .
+
+echo "Repository $ORG/$REPO has been cloned into $TARGET_DIR"

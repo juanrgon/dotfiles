@@ -208,9 +208,9 @@ function streamline_holiday_segment
             set holiday_emoji (choose_random_emoji $thanksgiving_emojis)
             set bg_color "#FFA500"
 
-        # Week of Christmas
-        case '12-19' '12-20' '12-21' '12-22' '12-23' '12-24' '12-25'
-            set -l christmas_emojis "🎄" "🎅" "🤶" "🦌" "⛄" "🔔" "🎁"
+        # Month of Christmas
+        case '12-01' '12-02' '12-03' '12-04' '12-05' '12-06' '12-07' '12-08' '12-09' '12-10' '12-11' '12-12' '12-13' '12-14' '12-15' '12-16' '12-17' '12-18' '12-19' '12-20' '12-21' '12-22' '12-23' '12-24' '12-25'
+            set -l christmas_emojis "🎄" "🎅" "🤶" "🦌" "⛄" "🔔" "🎁" "🧣"
             set holiday_emoji (choose_random_emoji $christmas_emojis)
             set bg_color "green"
 

@@ -177,7 +177,7 @@ function streamline_holiday_segment
         case '12-26' '12-27' '12-28' '12-29' '12-30' '12-31' '01-01'
             set -l new_year_emojis "🎉" "🍾" "🎆" "🕛" "🎊"
             set holiday_emoji (choose_random_emoji $new_year_emojis)
-            set bg_color "blue"
+            set bg_color "black"
 
         # Week of Valentine's Day
         case '02-08' '02-09' '02-10' '02-11' '02-12' '02-13' '02-14'

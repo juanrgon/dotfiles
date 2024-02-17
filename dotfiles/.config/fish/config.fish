@@ -85,3 +85,8 @@ if test -d $HOME/go
     set -x GOPATH $HOME/go
     set -x PATH $GOPATH/bin $PATH
 end
+
+########################
+# n node version manager
+########################
+set -x N_PREFIX "$HOME/n"; contains "$N_PREFIX/bin" $PATH; or set -a PATH "$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).

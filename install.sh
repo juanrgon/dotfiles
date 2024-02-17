@@ -392,7 +392,7 @@ function install_node() {
         return
     fi
 
-    brew install node
+    curl -L https://bit.ly/n-install | bash -s -- -y
 }
 
 function install_openssl() {

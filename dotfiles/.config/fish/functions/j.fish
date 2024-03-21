@@ -5,7 +5,6 @@ function j
     set -l GITHUB_REPOS_DIR ~/github.com
 
     # if there is a single repo that matches the argument, cd into it
-    # i.e. if $arg == motif and exactly one repo matches, cd into it
     if test (fd --type d --max-depth 2 --min-depth 2 --base-directory $GITHUB_REPOS_DIR | grep -c $arg) -eq 1
         cd $GITHUB_REPOS_DIR/(fd --type d --max-depth 2 --min-depth 2 --base-directory $GITHUB_REPOS_DIR | grep $arg)
         return

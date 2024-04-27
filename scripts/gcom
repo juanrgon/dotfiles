@@ -1,6 +1,6 @@
 #!/bin/bash
+set -e
 
 # Switch to the latest version of master from origin
 git fetch origin $(git_main_branch_name)
-git checkout $(git_main_branch_name)
-git pull origin $(git_main_branch_name)
+git reset --hard origin/$(git_main_branch_name)

@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+set -e
+
 git fetch origin $(git_main_branch_name)
+
+if (( $# != 1 )); then
+  echo -e "\033[31mUsage: git-checkout-main-branch.sh <branch-name>\033[0m"
+  exit 1
+fi
 
 git checkout -b $1 origin/$(git_main_branch_name)

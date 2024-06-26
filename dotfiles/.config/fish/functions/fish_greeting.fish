@@ -1,11 +1,9 @@
 function fish_greeting
   set current_hour (date +%H)
 
-    if test $current_hour -ge 6 -a $current_hour -lt 8
+    if test $current_hour -ge 6 -a $current_hour -lt 12
         morning
-    else if test $current_hour -ge 8 -a $current_hour -lt 18
-        midday
-    else if test $current_hour -ge 18 -a $current_hour -lt 20
+    else if test $current_hour -ge 12 -a $current_hour -lt 20
         evening
     else
         night

@@ -342,7 +342,6 @@ function macos_install_fonts() {
         return
     fi
 
-    brew tap homebrew/cask-fonts
     brew install \
         font-fira-code-nerd-font \
         font-hasklug-nerd-font
@@ -411,6 +410,21 @@ function install_rust() {
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     log "rustup already installed"
+}
+
+function install_ruby() {
+    if command -v rbenv &> /dev/null; then
+        return
+    fi
+
+    log "Installing rbenv..."
+
+    if os_is_linux; then
+        install_packages \
+            rbenv
+    elif os_is_macos; then
+        brew install rbenv ruby-build
+    fi
 }
 
 function install_homebrew() {

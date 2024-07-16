@@ -52,3 +52,5 @@ cd "$TARGET_DIR" || exit
 gh repo clone "$ORG/$REPO" .
 
 echo "Repository $ORG/$REPO has been cloned into $TARGET_DIR"
+
+code "$TARGET_DIR"

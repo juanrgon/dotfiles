@@ -14,6 +14,7 @@ THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_UPGRADE=1
+export HOMEBREW_QUIET=1
 
 main() {
     if [[ "${1:-}" == "--debug" ]]; then
@@ -233,7 +234,7 @@ install_packages() {
         fi
     elif os_is_macos; then
         # Make sure we have brew installed
-        brew install --quiet $PKGS
+        brew install --quiet --formula $PKGS
     else
         error "OS not supported 😔: $OSTYPE"
     fi
@@ -343,7 +344,7 @@ function macos_install_fonts() {
         return
     fi
 
-    brew install \
+    brew install --cask \
         font-fira-code-nerd-font \
         font-hasklug-nerd-font
 }

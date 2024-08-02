@@ -66,18 +66,6 @@ if test -d $PYENV_ROOT/bin
     end
 end
 
-#######################################
-# Source local.config.fish if it exists
-#######################################
-if test -f $HOME/.config/fish/local.config.fish
-    source $HOME/.config/fish/local.config.fish
-end
-
-if test -f $HOME/.config/op/plugins.sh
-    source /Users/juanrgon/.config/op/plugins.sh
-end
-
-
 ############
 # Set GOPATH
 ############
@@ -97,3 +85,24 @@ set -x N_PREFIX "$HOME/n"; contains "$N_PREFIX/bin" $PATH; or set -a PATH "$N_PR
 if test -d $HOME/.rbenv
     status --is-interactive; and rbenv init - fish | source
 end
+
+################################################################################
+# Load 1Password CLI plugins if available
+# This script checks for and sources the 1Password CLI plugins configuration.
+# It enables additional functionality for the 1Password CLI tool, such as
+# custom commands or integrations with other tools.
+# Ensure the 1Password CLI is installed and properly set up for this to work.
+# Important: This allows for seamless use of 1Password features in shell scripts.
+################################################################################
+if test -f $HOME/.config/op/plugins.sh
+    source /Users/juanrgon/.config/op/plugins.sh
+end
+
+#################################################################################
+# Source local.config.fish if it exists
+# NOTE: This should always be at the end to allow overriding of previous settings
+#################################################################################
+if test -f $HOME/.config/fish/local.config.fish
+    source $HOME/.config/fish/local.config.fish
+end
+

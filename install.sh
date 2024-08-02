@@ -434,7 +434,9 @@ function install_homebrew() {
         export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
     fi
 
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    if os_is_linux; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
 }
 
 main $*

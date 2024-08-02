@@ -13,6 +13,7 @@ export SHORTCUTS_BIN="$HOME/shortcut/bin"
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_UPGRADE=1
 
 main() {
     if [[ "${1:-}" == "--debug" ]]; then

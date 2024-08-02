@@ -134,7 +134,7 @@ main() {
     ###############################
     export PATH="$HOME/.cargo/bin:$PATH"
     log "Installing rust packages..."
-    cargo install \
+    cargo install --locked \
         bat \
         exa \
         git-delta \

@@ -233,7 +233,7 @@ function streamline_holiday_segment
                     set bg_color "#FFFF00"  # Yellow
                 # Fall
                 case '09' '10' '11'
-                    set season_emojis "🍂" "🍁" "🍄"
+                    set season_emojis "🍂" "🍁" "🍎" "🌾"
                     set bg_color "#8B4513" # Dark Brown
             end
             set holiday_emoji (choose_random_emoji $season_emojis)

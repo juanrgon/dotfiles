@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-initial="juanrgon"  # TODO: Make this is a dynamic value
-branch=$(git branch --all | sed "s/*//" | sed "s/remotes\/origin\///" | fzf --query "$initial" | tr -d '[:space:]')
+branch=$(git branch | fzf | tr -d '[:space:]')
 if [ -n "$branch" ]; then
     git checkout "$branch"
 fi

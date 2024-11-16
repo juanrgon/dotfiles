@@ -50,7 +50,7 @@ end
 # Set code as EDITOR if it is installed
 #######################################
 if type --quiet code
-    set --export EDITOR code
+    set --export EDITOR "code --wait"
 end
 
 #############

@@ -43,7 +43,7 @@ fi
 # Set code as EDITOR if it is installed
 #######################################
 if type -p code >/dev/null; then
-    export EDITOR=code
+    export EDITOR="code --wait"
 fi
 
 ##############

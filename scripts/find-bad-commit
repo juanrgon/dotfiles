@@ -90,3 +90,10 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # Clean up bisect and return to original commit
 git bisect reset
+
+# Ask if the user wants to checkout the bad commit. Default is yes.
+read -p "Do you want to checkout the bad commit? (Y/n): " checkout_bad_commit
+checkout_bad_commit=${checkout_bad_commit:-Y}
+if [ "$checkout_bad_commit" = "Y" ]; then
+    git checkout $bad_commit
+fi

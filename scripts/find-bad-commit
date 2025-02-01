@@ -2,12 +2,14 @@
 
 # Print usage if no arguments provided
 if [ $# -eq 0 ]; then
-    echo "Usage: find-bad-commit --max-commits=N COMMAND"
+    echo "Usage: find-bad-commit [--max-commits=N] COMMAND"
+    echo
+    echo "Example: find-bad-commit 'npm i && npm run lint'"
     echo "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
     exit 1
 fi
 
-# Parse the max-commits argument
+# Parse the max-commits argument and command
 max_commits=""
 command=""
 
@@ -23,21 +25,32 @@ for arg in "$@"; do
     fi
 done
 
-# Validate arguments
-if [ -z "$max_commits" ]; then
-    echo "Error: --max-commits is required"
+# Validate command
+if [ -z "$command" ]; then
+    echo "Error: command is required"
+    echo
+    echo "Example: find-bad-commit 'npm i && npm run lint'"
     echo "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
     exit 1
 fi
 
-if [ -z "$command" ]; then
-    echo "Error: command is required"
-    echo "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
-    exit 1
+# Prompt for max_commits if not provided
+if [ -z "$max_commits" ]; then
+    read -p "Enter maximum number of commits to check [100]: " max_commits
+    max_commits=${max_commits:-100}
 fi
+
+# Print command in a distinctive way
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 Testing command:"
+echo "   $command"
+echo "   Over the last $max_commits commits"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
 
 # Run git bisect
 git bisect start && \
 git bisect bad HEAD && \
 git bisect good HEAD~"$max_commits" && \
 git bisect run sh -c "$command"
+

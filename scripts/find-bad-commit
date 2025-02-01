@@ -81,7 +81,11 @@ git bisect run sh -c "$command"
 # Print the commit that broke the command
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔍 Bad commit:"
-git bisect log | tail -n 1
+bad_commit=$(git bisect log | tail -n 1 | grep -o '[a-f0-9]\{40\}')
+echo "$bad_commit"
+echo
+echo "To check out this commit, run:"
+echo "git checkout $bad_commit"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Clean up bisect and return to original commit

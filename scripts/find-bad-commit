@@ -48,9 +48,38 @@ echo "   Over the last $max_commits commits"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo
 
+# Test HEAD first - it should fail
+echo "Testing current HEAD (should fail)..."
+if ! eval "$command"; then
+    echo "✓ Current HEAD fails as expected"
+else
+    echo "❌ Error: The current HEAD passes the test!"
+    echo "    The bisect cannot continue since there's no failure to find."
+    exit 1
+fi
+
+# Test oldest commit - it should succeed
+echo -e "\nTesting oldest commit (HEAD~$max_commits, should pass)..."
+git checkout -q HEAD~"$max_commits"
+if eval "$command"; then
+    echo "✓ Oldest commit passes as expected"
+    git checkout -q -
+else
+    echo "❌ Error: The oldest commit (HEAD~$max_commits) fails the test!"
+    echo "    The bisect cannot continue since there's no working state to find."
+    git checkout -q -
+    exit 1
+fi
+
 # Run git bisect
 git bisect start && \
 git bisect bad HEAD && \
 git bisect good HEAD~"$max_commits" && \
 git bisect run sh -c "$command"
 
+
+# Print the commit that broke the command
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 Bad commit:"
+git bisect log | tail -n 1
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

@@ -83,3 +83,6 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "🔍 Bad commit:"
 git bisect log | tail -n 1
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Clean up bisect and return to original commit
+git bisect reset

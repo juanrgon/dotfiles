@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
+function echo_indented() {
+    echo
+    echo "   $1"
+    echo
+}
+
 # Print usage if no arguments provided
 if [ $# -eq 0 ]; then
     echo "Usage: find-bad-commit [--max-commits=N] COMMAND"
-    echo
-    echo "Example: find-bad-commit 'npm i && npm run lint'"
-    echo "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
+    echo_indented "Example: find-bad-commit 'npm i && npm run lint'"
+    echo_indented "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
     exit 1
 fi
+
 
 # Parse the max-commits argument and command
 max_commits=""
@@ -28,9 +34,8 @@ done
 # Validate command
 if [ -z "$command" ]; then
     echo "Error: command is required"
-    echo
-    echo "Example: find-bad-commit 'npm i && npm run lint'"
-    echo "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
+    echo_indented "Example: find-bad-commit 'npm i && npm run lint'"
+    echo_indented "Example: find-bad-commit --max-commits=100 'npm i && npm run lint'"
     exit 1
 fi
 
@@ -71,6 +76,8 @@ else
     exit 1
 fi
 
+original_commit=$(git rev-parse HEAD)
+
 # Run git bisect
 git bisect start && \
 git bisect bad HEAD && \
@@ -85,7 +92,8 @@ bad_commit=$(git bisect log | tail -n 1 | grep -o '[a-f0-9]\{40\}')
 echo "$bad_commit"
 echo
 echo "To check out this commit, run:"
-echo "git checkout $bad_commit"
+echo_indented "git checkout $bad_commit"
+echo
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Clean up bisect and return to original commit
@@ -95,5 +103,8 @@ git bisect reset
 read -p "Do you want to checkout the bad commit? (Y/n): " checkout_bad_commit
 checkout_bad_commit=${checkout_bad_commit:-Y}
 if [ "$checkout_bad_commit" = "Y" ]; then
+    echo "Checking out the bad commit"
     git checkout $bad_commit
+    echo "You are now on the bad commit: $bad_commit. To return to the original commit, run:"
+    echo_indented "git checkout $original_commit"
 fi

@@ -14,6 +14,8 @@ pr_title="${input_title:-$default_title}"
 cmd="gh pr create --title \"$pr_title\""
 if [ -f .github/pull_request_template.md ]; then
   cmd+=" --template pull_request_template.md"
+else
+  cmd+=" --body ''"
 fi
 
 # Run the command.

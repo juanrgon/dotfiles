@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+# Check if PR is passing CI
+if ! gh pr checks $(git_branch_name); then
+  echo "CI checks failed. Aborting merge."
+  exit 1
+fi
+
+# Merge the PR
+gh pr merge --squash $(git_branch_name)
+
+# Check out latest main branch
+git checkout main
+git pull

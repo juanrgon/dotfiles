@@ -1,0 +1,20 @@
+#!/bin/bash
+# Build a default title from command-line args or generate a random one.
+if [ "$#" -gt 0 ]; then
+  default_title="$*"
+else
+  default_title="PR-$(date +%s)"
+fi
+
+# Prompt for the PR title, using the default if nothing is entered.
+read -p "Enter PR title [${default_title}]: " input_title
+pr_title="${input_title:-$default_title}"
+
+# Build the gh pr create command.
+cmd="gh pr create --title \"$pr_title\""
+if [ -f .github/pull_request_template.md ]; then
+  cmd+=" --template pull_request_template.md"
+fi
+
+# Run the command.
+eval "$cmd"

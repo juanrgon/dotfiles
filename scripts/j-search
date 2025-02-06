@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Get the first argument
+set -eo pipefail
+
+arg="$1"
+GITHUB_REPOS_DIR=~/github.com
+
+count=$(fd --type d --max-depth 2 --min-depth 2 --base-directory "$GITHUB_REPOS_DIR" | grep -c "$arg")
+if [ "$count" -eq 1 ]; then
+    target=$(fd --type d --max-depth 2 --min-depth 2 --base-directory "$GITHUB_REPOS_DIR" | grep "$arg")
+    # Instead of changing the directory here, output it
+    echo "$GITHUB_REPOS_DIR/$target"
+    exit 0
+fi
+
+selection=$(fd --type d --max-depth 2 --min-depth 2 --base-directory "$GITHUB_REPOS_DIR" | fzf --height 40% --reverse --prompt "cd into repo > " --query "$arg")
+# Output the selected directory
+echo "$GITHUB_REPOS_DIR/$selection"

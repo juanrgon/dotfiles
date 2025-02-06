@@ -73,6 +73,27 @@ if [[ -f "$HOME/.local.bashrc" ]]; then
     source "$HOME/.local.bashrc"
 fi
 
+# Add function to change directory using j.sh script
+j() {
+    target=$("j-search" "$@")
+    if [ -d "$target" ]; then
+        cd "$target"
+    else
+        echo "Directory not found."
+    fi
+}
+
+# Add function to change directory using j.sh script
+je() {
+    # Jump to a repo and open it in the editor
+    j "$@"
+
+    # if EDITOR includes "--wait" (e.g. for VSCode or Cursor's `code` and `cursor` commands), remove it,
+    # otherwise the current editor window will be replaced, instead of a new one being opened.
+    EDITOR_COMMAND=$(echo "$EDITOR" | sed 's/--wait//')
+    $EDITOR_COMMAND "$@"
+}
+
 . ~/git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
 export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '

@@ -73,6 +73,16 @@ if [[ -f "$HOME/.local.zsh" ]]; then
     source "$HOME/.local.zsh"
 fi
 
+# Add function to change directory using j.sh script
+j() {
+    target=$("$HOME/github.com/juanrgon/dotfiles/dotfiles/.config/fish/functions/j.sh" "$@")
+    if [[ -d "$target" ]]; then
+        cd "$target"
+    else
+        echo "Directory not found."
+    fi
+}
+
 setopt PROMPT_SUBST
 export PS1='%B%F{blue}%~ $(git_prompt_info)%f%b
 $ '

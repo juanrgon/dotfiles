@@ -107,6 +107,6 @@ if test -f $HOME/.config/fish/local.config.fish
 end
 
 # Use delta for THOR_DIFF, if delta is installed
-if type -q delta
-    set --export THOR_DIFF delta
+if type -q git
+    set --export THOR_DIFF 'git diff --no-index'
 end

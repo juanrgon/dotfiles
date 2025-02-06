@@ -13,3 +13,9 @@ function j
     # use $arg as the initial fzf query
    cd ~/github.com/(fd --type d --max-depth 2 --min-depth 2 --base-directory ~/github.com | fzf --height 40% --reverse --prompt "cd into repo > " --query $arg)
 end
+
+# Jump to a repo and open it in the editor
+function je
+    j $argv
+    eval $EDITOR .
+end

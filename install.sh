@@ -22,15 +22,32 @@ main() {
         set -x
     fi
 
+    # Check for the flag to skip package installs
+    for arg in "$@"; do
+        if [[ "$arg" == "--skip-packages" ]]; then
+            SKIP_PACKAGES=1
+            log "Skipping package installation"
+            break
+        fi
+    done
+
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        log "💡 To skip package installation, run this script with the --skip-packages flag"
+    fi
+
     ####################################################################
     # Install OS packages needed to start fish and install other packages
     ####################################################################
-    log "Installing Essential OS packages..."
-    install_packages \
-        fish \
-        rsync \
-        git \
-        curl
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        log "Installing Essential OS packages..."
+        install_packages \
+            fish \
+            rsync \
+            git \
+            curl
+    else
+        log "Essential OS packages installation skipped"
+    fi
 
     ###########################################
     # Install homebrew if not already installed
@@ -111,37 +128,46 @@ main() {
     ########################
     # Install extra packages
     ########################
-    log "Installing Extra OS packages..."
-    install_packages \
-        tldr \
-        ripgrep \
-        fzf \
-        hub \
-        vim \
-        git \
-        htop \
-        rsync \
-        tree \
-        fd \
-        httpie \
-        less
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        log "Installing Extra OS packages..."
+        install_packages \
+            tldr \
+            ripgrep \
+            fzf \
+            hub \
+            vim \
+            git \
+            htop \
+            rsync \
+            tree \
+            fd \
+            httpie \
+            less
 
-    install_openssl
-    install_rust
-    install_onepassword_cli
-    install_awscli
+        install_openssl
+        install_rust
+        install_onepassword_cli
+        install_awscli
+    else
+        log "Extra OS packages installation skipped"
+    fi
+
 
     ###############################
     # Setup rust and cargo packages
     ###############################
     export PATH="$HOME/.cargo/bin:$PATH"
-    log "Installing rust packages..."
-    cargo install --locked \
-        bat \
-        exa \
-        git-delta \
-        chatgpt-cli \
-        tokei || log "Warning: Failed to install rust packages"
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        log "Installing rust packages..."
+        cargo install --locked \
+            bat \
+            exa \
+            git-delta \
+            chatgpt-cli \
+            tokei || log "Warning: Failed to install rust packages"
+    else
+        log "Rust packages installation skipped"
+    fi
 
     ##########################
     # Add git-delta git config
@@ -165,17 +191,29 @@ main() {
     #####################################
     # Install macos fonts for development
     #####################################
-    macos_install_fonts
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        macos_install_fonts
+    else
+        log "MacOS fonts installation skipped"
+    fi
 
     ##############
     # Setup gh cli
     ##############
-    setup_gh
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        setup_gh
+    else
+        log "gh cli installation skipped"
+    fi
 
     ##############
     # Install node
     ##############
-    install_node
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        install_node
+    else
+        log "Node installation skipped"
+    fi
 
     ###############
     # Install pyenv
@@ -202,6 +240,11 @@ main() {
 }
 
 install_packages() {
+    if [[ "${SKIP_PACKAGES:-}" == "1" ]]; then
+        log "Skipping package installation"
+        return
+    fi
+
     PKGS=""
     for pkg in "$@"
     do

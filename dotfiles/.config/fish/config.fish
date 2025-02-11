@@ -110,3 +110,5 @@ end
 if type -q git
     set --export THOR_DIFF 'git diff --no-index'
 end
+
+set --export LESS "-RS#3NM~g"

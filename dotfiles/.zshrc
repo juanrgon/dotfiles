@@ -94,3 +94,5 @@ function git_prompt_info() {
     echo "%{$fg[yellow]%}($git_branch)"
   fi
 }
+
+export LESS="-RS#3NM~g"

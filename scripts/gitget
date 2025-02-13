@@ -53,4 +53,7 @@ gh repo clone "$ORG/$REPO" .
 
 echo "Repository $ORG/$REPO has been cloned into $TARGET_DIR"
 
-$EDITOR "$TARGET_DIR"
+# if EDITOR includes "--wait" (e.g. for VSCode or Cursor's `code` and `cursor` commands), remove it,
+# otherwise the current editor window will be replaced, instead of a new one being opened.
+set EDITOR_WITHOUT_WAIT (echo $EDITOR | sed 's/--wait//g')
+eval $EDITOR_WITHOUT_WAIT .

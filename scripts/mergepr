@@ -7,8 +7,10 @@ if ! gh pr checks $(git_branch_name); then
   exit 1
 fi
 
+PR_TITLE=$(gh pr view $(git_branch_name) --json title --jq .title)
+
 # Merge the PR
-gh pr merge --squash $(git_branch_name)
+gh pr merge --squash $(git_branch_name) --subject "$PR_TITLE"
 
 # Check out latest main branch
 git checkout main

@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-# Initialize exclude patterns array
+# Initialize exclude patterns and filter non-exclude args
 exclude_patterns=()
 new_args=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --exclude)
             shift
-            exclude_patterns+=("$1")
+            IFS=',' read -r -a patterns <<< "$1"
+            for pat in "${patterns[@]}"; do
+                exclude_patterns+=("$pat")
+            done
             ;;
         *)
             new_args+=("$1")
@@ -26,7 +29,9 @@ cat_files() {
     esac
     # Skip excluded globs
     for pattern in "${exclude_patterns[@]}"; do
-        if [[ "$path" == $pattern ]]; then return; fi
+        if [[ "$path" == $pattern ]]; then
+            return
+        fi
     done
     if [ -d "$path" ]; then
         # This complex find is needed for files/dirs that start with a dot

@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
 
+# Initialize exclude patterns array
+exclude_patterns=()
+new_args=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --exclude)
+            shift
+            exclude_patterns+=("$1")
+            ;;
+        *)
+            new_args+=("$1")
+            ;;
+    esac
+    shift
+done
+set -- "${new_args[@]}"
+
 # Function to recursively cat files
 cat_files() {
     local path=$1
@@ -7,6 +24,10 @@ cat_files() {
     case "$path" in
         *.jpg|*.jpeg|*.png|*.gif|*.bmp|*.pdf) return ;;
     esac
+    # Skip excluded globs
+    for pattern in "${exclude_patterns[@]}"; do
+        if [[ "$path" == $pattern ]]; then return; fi
+    done
     if [ -d "$path" ]; then
         # This complex find is needed for files/dirs that start with a dot
         find "$path" -mindepth 1 -maxdepth 1 \( -type f -o -type d \) | while IFS= read -r file; do

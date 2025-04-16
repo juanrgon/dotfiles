@@ -3,6 +3,10 @@
 # Function to recursively cat files
 cat_files() {
     local path=$1
+    # Skip images and pdfs
+    case "$path" in
+        *.jpg|*.jpeg|*.png|*.gif|*.bmp|*.pdf) return ;;
+    esac
     if [ -d "$path" ]; then
         # This complex find is needed for files/dirs that start with a dot
         find "$path" -mindepth 1 -maxdepth 1 \( -type f -o -type d \) | while IFS= read -r file; do

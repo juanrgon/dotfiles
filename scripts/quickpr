@@ -1,11 +1,62 @@
 #!/bin/bash
-# Build a default title from command-line args or generate a random one.
+
+# Function to count commits between current branch and main/master
+count_commits_ahead() {
+  local main_branch
+  if git show-ref --verify --quiet refs/heads/main; then
+    main_branch="main"
+  elif git show-ref --verify --quiet refs/heads/master; then
+    main_branch="master"
+  else
+    echo "0"
+    return
+  fi
+  
+  git rev-list --count HEAD ^"$main_branch" 2>/dev/null || echo "0"
+}
+
+# Function to get the last commit message
+get_last_commit_message() {
+  git log -1 --pretty=format:"%s" 2>/dev/null || echo ""
+}
+
+# Function to generate title from branch name
+generate_title_from_branch() {
+  local branch_name
+  branch_name=$(git branch --show-current 2>/dev/null || echo "")
+  
+  if [ -n "$branch_name" ]; then
+    # Remove everything before and including the last '/'
+    branch_name="${branch_name##*/}"
+    # Replace dashes with spaces
+    echo "$branch_name" | sed 's/-/ /g'
+  else
+    echo ""
+  fi
+}
+
+# Build a default title from command-line args or generate a smart one.
 if [ "$#" -gt 0 ]; then
   default_title="$*"
+else
+  # Smart default based on commit count
+  commit_count=$(count_commits_ahead)
+  
+  if [ "$commit_count" -eq 1 ]; then
+    # Single commit: use commit message
+    default_title=$(get_last_commit_message)
+  elif [ "$commit_count" -gt 1 ]; then
+    # Multiple commits: use branch name
+    default_title=$(generate_title_from_branch)
+  fi
+  
+  # Fallback to timestamp if we couldn't generate a title
+  if [ -z "$default_title" ]; then
+    default_title="PR-$(date +%s)"
+  fi
 fi
 
-if [ -z "$default_title" ]; then
-  default_title="PR-$(date +%s)"
+if [ "$#" -eq 0 ]; then
   # Prompt for the PR title, using the default if nothing is entered.
   read -p "Enter PR title [${default_title}]: " input_title
   pr_title="${input_title:-$default_title}"

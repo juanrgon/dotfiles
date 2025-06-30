@@ -96,15 +96,64 @@ fi
 
 # Get conversation threads (review comments on specific lines)
 echo "Fetching line-specific comments..." >&2
-conversation_threads=$(gh api "repos/:owner/:repo/pulls/$(gh pr view "$current_branch" --json number --jq '.number')/comments" --jq '.[] | "[@\(.user.login)] (\(.created_at | split("T")[0])) on \(.path):\(.position // "general"): \(.body)"' 2>/dev/null || echo "")
-if [ -n "$conversation_threads" ] && [ "$conversation_threads" != "null" ]; then
-    output+="Line Comments:\n"
-    output+="$conversation_threads"
-    output+="\n"
+pr_number=$(gh pr view "$current_branch" --json number --jq '.number')
+conversation_data=$(gh api "repos/:owner/:repo/pulls/$pr_number/comments" --jq 'group_by(.path, .line // .original_line // 0) | map({
+  file: .[0].path,
+  line: (.[0].line // .[0].original_line // 0),
+  diff_hunk: .[0].diff_hunk,
+  comments: map({
+    author: .user.login,
+    body: .body,
+    created: .created_at,
+    in_reply_to: .in_reply_to_id
+  })
+})' 2>/dev/null || echo "[]")
+
+if [ -n "$conversation_data" ] && [ "$conversation_data" != "[]" ] && [ "$conversation_data" != "null" ]; then
+    output+="Conversation Threads:\n"
+    output+="====================\n"
+    
+    # Process each conversation thread
+    while IFS= read -r thread; do
+        if [ -n "$thread" ] && [ "$thread" != "null" ]; then
+            file=$(echo "$thread" | jq -r '.file')
+            line=$(echo "$thread" | jq -r '.line')
+            diff_hunk=$(echo "$thread" | jq -r '.diff_hunk // ""')
+            
+            # Add thread header
+            if [ "$line" != "0" ] && [ "$line" != "null" ]; then
+                output+="📁 $file (line $line):\n"
+            else
+                output+="📁 $file (general):\n"
+            fi
+            
+            # Show a snippet of the diff context if available
+            if [ -n "$diff_hunk" ] && [ "$diff_hunk" != "null" ] && [ "$diff_hunk" != "" ]; then
+                # Extract the relevant line from diff hunk (first few lines for context)
+                context_lines=$(echo "$diff_hunk" | head -n 3 | sed 's/^/  │ /')
+                if [ -n "$context_lines" ]; then
+                    output+="  Context:\n$context_lines\n"
+                fi
+            fi
+            
+            # Add comments in chronological order
+            comments=$(echo "$thread" | jq -r '.comments | sort_by(.created) | .[] | "  💬 @\(.author) (\(.created | split("T")[0])): \(.body)"')
+            if [ -n "$comments" ]; then
+                output+="$comments\n"
+            fi
+            output+="\n"
+        fi
+    done <<< "$(echo "$conversation_data" | jq -c '.[]')"
+else
+    output+="Conversation Threads:\n"
+    output+="====================\n"
+    output+="No line-specific conversation threads found\n"
 fi
 
-if [ -z "$regular_comments$review_comments$conversation_threads" ] || [[ "$regular_comments$review_comments$conversation_threads" == *"null"* ]]; then
-    output+="No comments or conversations found\n"
+if [ -z "$regular_comments$review_comments" ] || [[ "$regular_comments$review_comments" == *"null"* ]]; then
+    if [ "$conversation_data" = "[]" ] || [ "$conversation_data" = "null" ] || [ -z "$conversation_data" ]; then
+        output+="No comments or conversations found\n"
+    fi
 fi
 
 # Output the result

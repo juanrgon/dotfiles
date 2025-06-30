@@ -1,0 +1,119 @@
+#!/bin/bash
+set -e
+
+# Check for --echo flag
+echo_flag=false
+if [[ "$1" == "--echo" ]]; then
+    echo_flag=true
+fi
+
+# Check if we're in a git repository
+if ! $(git_is_repo); then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Get current branch
+echo "Getting current branch..." >&2
+current_branch=$(git_branch_name)
+if [ -z "$current_branch" ]; then
+    echo "Error: Could not determine current branch"
+    exit 1
+fi
+
+# Check if PR exists for current branch
+echo "Checking for PR on branch '$current_branch'..." >&2
+if ! gh pr view "$current_branch" >/dev/null 2>&1; then
+    echo "Error: No PR found for branch '$current_branch'"
+    exit 1
+fi
+
+# Start building the output
+output=""
+
+# Add branch name
+output+="Branch: $current_branch"
+output+="\n\n"
+
+# Get PR description
+echo "Fetching PR description..." >&2
+pr_description=$(gh pr view "$current_branch" --json body --jq '.body')
+output+="PR Description:\n"
+output+="===============\n"
+output+="$pr_description"
+output+="\n\n"
+
+# Get changed files
+echo "Getting changed files..." >&2
+changed_files=$(gh pr view "$current_branch" --json files --jq '.files[].path')
+output+="Changed Files:\n"
+output+="==============\n"
+if [ -n "$changed_files" ]; then
+    while IFS= read -r file; do
+        output+="- $file\n"
+    done <<< "$changed_files"
+else
+    output+="No changed files found\n"
+fi
+output+="\n"
+
+# Get PR comments and conversations
+echo "Fetching PR comments and reviews..." >&2
+comments_output=$(gh pr view "$current_branch" --json comments,reviews --jq '
+{
+  comments: .comments | map({
+    author: .author.login,
+    body: .body,
+    created: .createdAt
+  }),
+  reviews: .reviews | map({
+    author: .author.login,
+    state: .state,
+    body: .body,
+    created: .createdAt
+  })
+}')
+
+# Parse and format comments
+output+="Comments & Conversations:\n"
+output+="========================\n"
+
+# Get regular comments
+regular_comments=$(echo "$comments_output" | jq -r '.comments[] | "[@\(.author)] (\(.created | split("T")[0])): \(.body)"' 2>/dev/null || echo "")
+if [ -n "$regular_comments" ] && [ "$regular_comments" != "null" ]; then
+    output+="Comments:\n"
+    output+="$regular_comments"
+    output+="\n\n"
+fi
+
+# Get review comments
+review_comments=$(echo "$comments_output" | jq -r '.reviews[] | "[@\(.author)] Review: \(.state) (\(.created | split("T")[0]))\(.body | if length > 0 then ": \(.)" else "" end)"' 2>/dev/null || echo "")
+if [ -n "$review_comments" ] && [ "$review_comments" != "null" ]; then
+    output+="Reviews:\n"
+    output+="$review_comments"
+    output+="\n"
+fi
+
+# Get conversation threads (review comments on specific lines)
+echo "Fetching line-specific comments..." >&2
+conversation_threads=$(gh api "repos/:owner/:repo/pulls/$(gh pr view "$current_branch" --json number --jq '.number')/comments" --jq '.[] | "[@\(.user.login)] (\(.created_at | split("T")[0])) on \(.path):\(.position // "general"): \(.body)"' 2>/dev/null || echo "")
+if [ -n "$conversation_threads" ] && [ "$conversation_threads" != "null" ]; then
+    output+="Line Comments:\n"
+    output+="$conversation_threads"
+    output+="\n"
+fi
+
+if [ -z "$regular_comments$review_comments$conversation_threads" ] || [[ "$regular_comments$review_comments$conversation_threads" == *"null"* ]]; then
+    output+="No comments or conversations found\n"
+fi
+
+# Output the result
+echo "Preparing output..." >&2
+if [[ "$OSTYPE" == "darwin"* ]] && [ "$echo_flag" = false ]; then
+    # On macOS and no --echo flag, copy to clipboard
+    echo -e "$output" | pbcopy
+    echo "PR information copied to clipboard"
+else
+    # Echo to stdout
+    echo -e "$output"
+fi

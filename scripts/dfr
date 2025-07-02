@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [[ " $* " != *" --install-packages "* ]]; then
+    echo "⚠️ SKIPPING PACKAGE INSTALLS"
+    echo "To install packages, run this script with the '--install-packages' option."
+    cd /Users/juanrgon/github.com/juanrgon/dotfiles && gdn && /Users/juanrgon/github.com/juanrgon/dotfiles/install.sh --skip-packages $*
+else
+    cd /Users/juanrgon/github.com/juanrgon/dotfiles && gdn && /Users/juanrgon/github.com/juanrgon/dotfiles/install.sh $*
+fi

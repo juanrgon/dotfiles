@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# If the $EDITOR is set, then this is just a proxy to $EDITOR, with all of its flags removed.
+# e.g. if $EDITOR is set to "code --wait", then this script will run "code" instead of "code --wait".
+
+# if $EDITOR is not set, dynamically choose which editor to use. With the preference order being vim, then vi.
+# If neither are available, then error explaining that no expected editor is available.
+
+if [[ -n "$EDITOR" ]]; then
+    # Extract just the command name from $EDITOR, removing any flags
+    editor_cmd=$(echo "$EDITOR" | awk '{print $1}')
+    exec "$editor_cmd" "$@"
+elif command -v vim >/dev/null 2>&1; then
+    exec vim "$@"
+elif command -v vi >/dev/null 2>&1; then
+    exec vi "$@"
+else
+    echo "Error: No suitable editor found. Please install vim or vi, or set the EDITOR environment variable." >&2
+    exit 1
+fi

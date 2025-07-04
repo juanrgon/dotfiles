@@ -1,0 +1,171 @@
+#!/bin/bash
+set -e
+
+# Check for --echo flag
+echo_flag=false
+issue_url=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --echo)
+            echo_flag=true
+            shift
+            ;;
+        *)
+            if [ -z "$issue_url" ]; then
+                issue_url="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Check if issue URL is provided
+if [ -z "$issue_url" ]; then
+    echo "Error: Please provide a GitHub issue URL"
+    echo "Usage: issueinfo [--echo] <issue-url>"
+    echo "Example: issueinfo https://github.com/owner/repo/issues/123"
+    exit 1
+fi
+
+# Extract owner, repo, and issue number from URL
+if [[ "$issue_url" =~ ^https://github\.com/([^/]+)/([^/]+)/issues/([0-9]+)/?.*$ ]]; then
+    owner="${BASH_REMATCH[1]}"
+    repo="${BASH_REMATCH[2]}"
+    issue_number="${BASH_REMATCH[3]}"
+else
+    echo "Error: Invalid GitHub issue URL format"
+    echo "Expected format: https://github.com/owner/repo/issues/number"
+    exit 1
+fi
+
+echo "Fetching issue information for #$issue_number from $owner/$repo..." >&2
+
+# Check if issue exists
+if ! gh issue view "$issue_number" --repo "$owner/$repo" >/dev/null 2>&1; then
+    echo "Error: Issue #$issue_number not found in $owner/$repo"
+    exit 1
+fi
+
+# Start building the output
+output=""
+
+# Add issue header
+echo "Getting issue details..." >&2
+issue_data=$(gh issue view "$issue_number" --repo "$owner/$repo" --json title,body,state,author,createdAt,updatedAt,labels,assignees,milestone,number,url)
+
+title=$(echo "$issue_data" | jq -r '.title')
+state=$(echo "$issue_data" | jq -r '.state')
+author=$(echo "$issue_data" | jq -r '.author.login')
+created=$(echo "$issue_data" | jq -r '.createdAt | split("T")[0]')
+updated=$(echo "$issue_data" | jq -r '.updatedAt | split("T")[0]')
+labels=$(echo "$issue_data" | jq -r '.labels[]?.name' | tr '\n' ', ' | sed 's/,$//')
+assignees=$(echo "$issue_data" | jq -r '.assignees[]?.login' | tr '\n' ', ' | sed 's/,$//')
+milestone=$(echo "$issue_data" | jq -r '.milestone.title // "None"')
+
+output+="Issue #$issue_number: $title\n"
+output+="Repository: $owner/$repo\n"
+output+="State: $state\n"
+output+="Author: @$author\n"
+output+="Created: $created\n"
+output+="Updated: $updated\n"
+if [ -n "$labels" ] && [ "$labels" != "null" ]; then
+    output+="Labels: $labels\n"
+fi
+if [ -n "$assignees" ] && [ "$assignees" != "null" ]; then
+    output+="Assignees: $assignees\n"
+fi
+output+="Milestone: $milestone\n"
+output+="URL: $issue_url\n"
+output+="\n"
+
+# Get issue description
+echo "Fetching issue description..." >&2
+issue_body=$(echo "$issue_data" | jq -r '.body // ""')
+output+="Issue Description:\n"
+output+="==================\n"
+if [ -n "$issue_body" ] && [ "$issue_body" != "null" ] && [ "$issue_body" != "" ]; then
+    output+="$issue_body"
+else
+    output+="No description provided"
+fi
+output+="\n\n"
+
+# Get issue comments
+echo "Fetching issue comments..." >&2
+comments_data=$(gh issue view "$issue_number" --repo "$owner/$repo" --json comments --jq '.comments | map({
+    author: .author.login,
+    body: .body,
+    created: .createdAt,
+    updated: .updatedAt
+})')
+
+output+="Comments:\n"
+output+="=========\n"
+
+if [ -n "$comments_data" ] && [ "$comments_data" != "[]" ] && [ "$comments_data" != "null" ]; then
+    # Parse and format comments
+    comments_formatted=$(echo "$comments_data" | jq -r '.[] | "[@\(.author)] (\(.created | split("T")[0])): \(.body)"' 2>/dev/null || echo "")
+    if [ -n "$comments_formatted" ] && [ "$comments_formatted" != "null" ]; then
+        output+="$comments_formatted"
+        output+="\n"
+    else
+        output+="No comments found\n"
+    fi
+else
+    output+="No comments found\n"
+fi
+
+# Get issue events (optional - shows timeline of issue changes)
+echo "Fetching issue timeline..." >&2
+timeline_data=$(gh api "repos/$owner/$repo/issues/$issue_number/timeline" --jq 'map(select(.event | IN("labeled", "unlabeled", "assigned", "unassigned", "closed", "reopened", "referenced", "mentioned"))) | map({
+    event: .event,
+    actor: .actor.login,
+    created: .created_at,
+    label: .label.name // null,
+    assignee: .assignee.login // null
+})' 2>/dev/null || echo "[]")
+
+if [ -n "$timeline_data" ] && [ "$timeline_data" != "[]" ] && [ "$timeline_data" != "null" ]; then
+    output+="\nTimeline Events:\n"
+    output+="================\n"
+    
+    timeline_formatted=$(echo "$timeline_data" | jq -r '.[] | 
+        if .event == "labeled" then
+            "🏷️  @\(.actor) added label \"\(.label)\" (\(.created | split("T")[0]))"
+        elif .event == "unlabeled" then
+            "🏷️  @\(.actor) removed label \"\(.label)\" (\(.created | split("T")[0]))"
+        elif .event == "assigned" then
+            "👤 @\(.actor) assigned @\(.assignee) (\(.created | split("T")[0]))"
+        elif .event == "unassigned" then
+            "👤 @\(.actor) unassigned @\(.assignee) (\(.created | split("T")[0]))"
+        elif .event == "closed" then
+            "❌ @\(.actor) closed the issue (\(.created | split("T")[0]))"
+        elif .event == "reopened" then
+            "🔄 @\(.actor) reopened the issue (\(.created | split("T")[0]))"
+        elif .event == "referenced" then
+            "🔗 @\(.actor) referenced this issue (\(.created | split("T")[0]))"
+        elif .event == "mentioned" then
+            "💬 @\(.actor) mentioned this issue (\(.created | split("T")[0]))"
+        else
+            "📝 @\(.actor) \(.event) (\(.created | split("T")[0]))"
+        end' 2>/dev/null || echo "")
+    
+    if [ -n "$timeline_formatted" ] && [ "$timeline_formatted" != "null" ]; then
+        output+="$timeline_formatted\n"
+    else
+        output+="No significant timeline events found\n"
+    fi
+fi
+
+# Output the result
+echo "Preparing output..." >&2
+if [[ "$OSTYPE" == "darwin"* ]] && [ "$echo_flag" = false ]; then
+    # On macOS and no --echo flag, copy to clipboard
+    echo -e "$output" | pbcopy
+    echo "Issue information copied to clipboard"
+else
+    # Echo to stdout
+    echo -e "$output"
+fi

@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Global variables
+DRY_RUN=false
+
+# Function to check if gh CLI is available and authenticated
+check_gh_cli() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "Error: GitHub CLI (gh) is not installed."
+        echo "Install it from: https://cli.github.com/"
+        exit 1
+    fi
+    
+    if ! gh auth status >/dev/null 2>&1; then
+        echo "Error: GitHub CLI is not authenticated."
+        echo "Run 'gh auth login' to authenticate."
+        exit 1
+    fi
+}
+
 # Function to get the authenticated user's GitHub handle
 get_github_handle() {
     gh api user --jq '.login'
@@ -7,31 +25,149 @@ get_github_handle() {
 
 # Function to parse org and repo from URL or slug
 parse_git_url() {
-    if [[ $1 =~ ^http ]]; then
-        # Parse org and repo from the URL
-        ORG=$(echo $1 | cut -d '/' -f 4)
-        REPO=$(echo $1 | cut -d '/' -f 5)
+    local input="$1"
+    
+    # Handle different GitHub URL formats
+    if [[ $input =~ ^https?://github\.com/ ]]; then
+        # HTTPS GitHub URL: https://github.com/org/repo or https://github.com/org/repo.git
+        input=$(echo "$input" | sed -E 's|^https?://github\.com/||' | sed 's|\.git$||' | sed 's|/$||')
+        
+        # Validate that we have exactly org/repo format
+        if [[ ! $input =~ ^[^/]+/[^/]+$ ]]; then
+            echo "Error: Could not parse valid org/repo from input: $1"
+            echo "Supported formats:"
+            echo "  - repo"
+            echo "  - org/repo" 
+            echo "  - https://github.com/org/repo"
+            echo "  - git@github.com:org/repo.git"
+            exit 1
+        fi
+        
+        ORG=$(echo "$input" | cut -d '/' -f 1)
+        REPO=$(echo "$input" | cut -d '/' -f 2)
+    elif [[ $input =~ ^git@github\.com: ]]; then
+        # SSH GitHub URL: git@github.com:org/repo.git
+        input=$(echo "$input" | sed 's|^git@github\.com:||' | sed 's|\.git$||')
+        ORG=$(echo "$input" | cut -d '/' -f 1)
+        REPO=$(echo "$input" | cut -d '/' -f 2)
+    elif [[ $input =~ / ]]; then
+        # org/repo slug format
+        # Validate that we have exactly org/repo format (one slash, both parts non-empty)
+        if [[ ! $input =~ ^[^/]+/[^/]+$ ]]; then
+            echo "Error: Could not parse valid org/repo from input: $1"
+            echo "Supported formats:"
+            echo "  - repo"
+            echo "  - org/repo" 
+            echo "  - https://github.com/org/repo"
+            echo "  - git@github.com:org/repo.git"
+            exit 1
+        fi
+        
+        ORG=$(echo "$input" | cut -d '/' -f 1)
+        REPO=$(echo "$input" | cut -d '/' -f 2)
     else
-        # Parse org and repo from the slug
-        ORG=$(echo $1 | cut -d '/' -f 1)
-        REPO=$(echo $1 | cut -d '/' -f 2)
+        # Just repo name - use authenticated user's handle as org
+        REPO="$input"
+        ORG=$(get_github_handle)
     fi
 
-    # Use the authenticated user's GitHub handle if no org is provided
-    if [ -z "$REPO" ]; then
-        REPO=$ORG
-        ORG=$(get_github_handle)
+    # Validate parsed values
+    if [ -z "$ORG" ] || [ -z "$REPO" ]; then
+        echo "Error: Could not parse valid org/repo from input: $1"
+        echo "Supported formats:"
+        echo "  - repo"
+        echo "  - org/repo" 
+        echo "  - https://github.com/org/repo"
+        echo "  - git@github.com:org/repo.git"
+        exit 1
+    fi
+
+    # Validate repo name format (basic GitHub repo name rules)
+    if [[ ! $REPO =~ ^[a-zA-Z0-9._-]+$ ]]; then
+        echo "Error: Invalid repository name format: $REPO"
+        exit 1
     fi
 }
 
+# Parse command line arguments
+REPO_ARG=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS] <repo>"
+            echo ""
+            echo "Clone a GitHub repository to ~/github.com/org/repo"
+            echo ""
+            echo "Arguments:"
+            echo "  <repo>    Repository in one of these formats:"
+            echo "            - repo"
+            echo "            - org/repo"
+            echo "            - https://github.com/org/repo"
+            echo "            - git@github.com:org/repo.git"
+            echo ""
+            echo "Options:"
+            echo "  -n, --dry-run    Show what would be done without executing"
+            echo "  -h, --help       Show this help message"
+            exit 0
+            ;;
+        -*|--*)
+            echo "Unknown option $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+        *)
+            if [ -n "$REPO_ARG" ]; then
+                echo "Error: Multiple repository arguments provided"
+                echo "Use --help for usage information"
+                exit 1
+            fi
+            REPO_ARG="$1"
+            shift
+            ;;
+    esac
+done
+
 # Check if a repository argument is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <repo> or <org>/<repo> or full repo URL"
+if [ -z "$REPO_ARG" ]; then
+    echo "Error: Repository argument is required"
+    echo "Usage: $0 [OPTIONS] <repo>"
+    echo "Use --help for more information"
     exit 1
 fi
 
+# Check gh CLI availability and authentication
+check_gh_cli
+
 # Parse org and repo from the input
-parse_git_url "$1"
+parse_git_url "$REPO_ARG"
+
+if [ "$DRY_RUN" = true ]; then
+    echo "=== DRY RUN MODE ==="
+    echo "Input: $REPO_ARG"
+    echo "Parsed org: $ORG"
+    echo "Parsed repo: $REPO"
+    echo "Target directory: $HOME/github.com/$ORG/$REPO"
+    echo ""
+fi
+
+# Validate that the remote repository exists
+if [ "$DRY_RUN" = true ]; then
+    echo "Checking if repository $ORG/$REPO exists..."
+fi
+
+if ! gh repo view "$ORG/$REPO" >/dev/null 2>&1; then
+    echo "Error: Repository $ORG/$REPO does not exist or is not accessible."
+    echo "Please check the repository name and your access permissions."
+    exit 1
+fi
+
+if [ "$DRY_RUN" = true ]; then
+    echo "✓ Repository $ORG/$REPO exists and is accessible"
+fi
 
 # Define the target directory
 TARGET_DIR="$HOME/github.com/$ORG/$REPO"
@@ -40,6 +176,27 @@ TARGET_DIR="$HOME/github.com/$ORG/$REPO"
 if [ -d "$TARGET_DIR" ]; then
     echo "The directory $TARGET_DIR already exists."
     exit 1
+fi
+
+if [ "$DRY_RUN" = true ]; then
+    echo "✓ Target directory $TARGET_DIR does not exist"
+    echo ""
+    echo "Would execute:"
+    echo "  mkdir -p \"$TARGET_DIR\""
+    echo "  cd \"$TARGET_DIR\""
+    echo "  gh repo clone \"$ORG/$REPO\" ."
+    
+    # Show editor command that would be executed
+    if [ -n "$EDITOR" ]; then
+        EDITOR_WITHOUT_WAIT=$(echo "$EDITOR" | sed -E 's/[[:space:]]*--wait([[:space:]]+|=|$)/\1/g' | sed 's/[[:space:]]*$//')
+        if [ -n "$EDITOR_WITHOUT_WAIT" ]; then
+            echo "  $EDITOR_WITHOUT_WAIT ."
+        fi
+    fi
+    
+    echo ""
+    echo "=== DRY RUN COMPLETE ==="
+    exit 0
 fi
 
 # Create the target directory
@@ -53,7 +210,14 @@ gh repo clone "$ORG/$REPO" .
 
 echo "Repository $ORG/$REPO has been cloned into $TARGET_DIR"
 
-# if EDITOR includes "--wait" (e.g. for VSCode or Cursor's `code` and `cursor` commands), remove it,
-# otherwise the current editor window will be replaced, instead of a new one being opened.
-EDITOR_WITHOUT_WAIT=$(echo $EDITOR | sed 's/--wait//g')
-eval $EDITOR_WITHOUT_WAIT .
+# Open in editor if EDITOR is set
+if [ -n "$EDITOR" ]; then
+    # Remove --wait flag from editor command to avoid blocking behavior
+    # Handle various formats: "--wait", " --wait ", "--wait="
+    EDITOR_WITHOUT_WAIT=$(echo "$EDITOR" | sed -E 's/[[:space:]]*--wait([[:space:]]+|=|$)/\1/g' | sed 's/[[:space:]]*$//')
+    
+    # Only try to open if we have a valid editor command after processing
+    if [ -n "$EDITOR_WITHOUT_WAIT" ]; then
+        eval "$EDITOR_WITHOUT_WAIT" .
+    fi
+fi

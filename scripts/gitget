@@ -32,6 +32,9 @@ parse_git_url() {
         # HTTPS GitHub URL: https://github.com/org/repo or https://github.com/org/repo.git
         input=$(echo "$input" | sed -E 's|^https?://github\.com/||' | sed 's|\.git$||' | sed 's|/$||')
         
+        # Extract org/repo and ignore any additional path components, query params, or fragments
+        input=$(echo "$input" | sed -E 's|^([^/]+/[^/?#]+).*|\1|')
+        
         # Validate that we have exactly org/repo format
         if [[ ! $input =~ ^[^/]+/[^/]+$ ]]; then
             echo "Error: Could not parse valid org/repo from input: $1"

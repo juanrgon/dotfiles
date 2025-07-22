@@ -2,10 +2,12 @@
 # My ZSH configuration
 ######################
 
+export GITHUB_HANDLE="juanrgon"
+
 ##################################
 # Add personal scripts to the PATH
 ##################################
-export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
+export PERSONAL_SCRIPTS_DIR="$HOME/bin/$GITHUB_HANDLE"
 mkdir -p "$PERSONAL_SCRIPTS_DIR"
 export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
 
@@ -75,7 +77,7 @@ fi
 
 # Add function to change directory using j.sh script
 j() {
-    target=$("$HOME/github.com/juanrgon/dotfiles/dotfiles/.config/fish/functions/j.sh" "$@")
+    target=$("$HOME/github.com/$GITHUB_HANDLE/dotfiles/dotfiles/.config/fish/functions/j.sh" "$@")
     if [[ -d "$target" ]]; then
         cd "$target"
     else

@@ -2,6 +2,7 @@
 
 set -e
 
+DOTFILES_REPO="juanrgon/dotfiles"
 
 main() {
     # Install git if it's not installed
@@ -9,14 +10,14 @@ main() {
         install_git
     fi
 
-    DOTFILES_REPO_DESTINATION=$HOME/github.com/juanrgon/dotfiles
+    DOTFILES_REPO_DESTINATION=$HOME/github.com/$DOTFILES_REPO
 
-    # Clone dotfiles repo to ~/github/juanrgon/dotfiles
+    # Clone dotfiles repo to ~/github.com dir
     if [ -d $DOTFILES_REPO_DESTINATION ]; then
         cd $DOTFILES_REPO_DESTINATION
         git pull
     else
-        git clone https://github.com/juanrgon/dotfiles.git $DOTFILES_REPO_DESTINATION
+        git clone https://github.com/$DOTFILES_REPO.git $DOTFILES_REPO_DESTINATION
     fi
 
     # Run dotfiles install script

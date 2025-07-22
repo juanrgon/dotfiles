@@ -3,8 +3,10 @@
 set -ou pipefail
 set -e
 
+export GITHUB_HANDLE="juanrgon"
+
 # destination for my personal scripts
-export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
+export PERSONAL_SCRIPTS_DIR="$HOME/bin/$GITHUB_HANDLE"
 
 # destination for my shortcuts
 export SHORTCUTS_BIN="$HOME/shortcut/bin"
@@ -120,7 +122,7 @@ main() {
     ##################
     # Setup git config
     ##################
-    install_git_config $HOME/.config/git/juanrgon.gitconfig
+    install_git_config $HOME/.config/git/$GITHUB_HANDLE.gitconfig
 
     ########################
     # Install extra packages

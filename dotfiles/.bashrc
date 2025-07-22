@@ -2,10 +2,12 @@
 # My Bash configuration
 #######################
 
+export GITHUB_HANDLE="juanrgon"  # My GitHub handle
+
 ##################################
 # Add personal scripts to the PATH
 ##################################
-export PERSONAL_SCRIPTS_DIR="$HOME/bin/juanrgon"
+export PERSONAL_SCRIPTS_DIR="$HOME/bin/$GITHUB_HANDLE"
 mkdir -p "$PERSONAL_SCRIPTS_DIR"
 export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
 

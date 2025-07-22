@@ -8,10 +8,12 @@
 # "set --universal" sets a variable in ALL fish shells, current and future
 # "set --export" sets a variable in the current shell, and in its future child processes
 
+export GITHUB_HANDLE="juanrgon"  # My GitHub handle
+
 #####################################
 # Add my personal scripts to the PATH
 #####################################
-set --export PERSONAL_SCRIPTS_DIR $HOME/bin/juanrgon    # destination for my personal scripts
+set --export PERSONAL_SCRIPTS_DIR $HOME/bin/$GITHUB_HANDLE    # destination for my personal scripts
 mkdir -p $PERSONAL_SCRIPTS_DIR                          # Create personal scripts dir
 
 # NOTE using "set --universal" instead of "set --export" on fish_user_paths would cause it to get longer on each new shell
@@ -95,7 +97,7 @@ end
 # Important: This allows for seamless use of 1Password features in shell scripts.
 ################################################################################
 if test -f $HOME/.config/op/plugins.sh
-    source /Users/juanrgon/.config/op/plugins.sh
+    source $HOME/.config/op/plugins.sh
 end
 
 #################################################################################

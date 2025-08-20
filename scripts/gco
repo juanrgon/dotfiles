@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# if $1 is a url, use gh pr checkout $*
+if [[ $1 =~ ^https?://.* ]]; then
+  gh pr checkout "$@"
+  exit $?
+fi
+
+git checkout $*

@@ -1,5 +1,11 @@
 function fish_greeting
-  set current_hour (date +%H)
+    # Check if we should show copilot greeting
+    if test "$BUILDING_COPILOT" = "true"
+        copilot
+        return
+    end
+
+    set current_hour (date +%H)
 
     if test $current_hour -ge 6 -a $current_hour -lt 12
         morning
@@ -132,4 +138,18 @@ function night
     printf '\e[36m┃                                                                              ┃\n'
     printf '\e[36m┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n'
     printf '\e[0m'
+end
+
+function copilot
+    echo "┌──                                                                         ──┐"
+    echo "│                                                           ▄██████▄          │"
+    echo "    GitHub                                              ▄█▀▀▀▀▀██▀▀▀▀▀█▄"
+    echo "    █████┐ █████┐ █████┐ ██┐██┐     █████┐ ██████┐     ▐█      ▐▌      █▌"
+    echo "   ██┌───┘██┌──██┐██┌─██┐██│██│    ██┌──██┐└─██┌─┘     ▐█▄    ▄██▄    ▄█▌"
+    echo "   ██│    ██│  ██│█████┌┘██│██│    ██│  ██│  ██│      ▄▄███████▀▀███████▄▄"
+    echo "   ██│    ██│  ██│██┌──┘ ██│██│    ██│  ██│  ██│     ████     ▄  ▄     ████"
+    echo "   └█████┐└█████┌┘██│    ██│██████┐└█████┌┘  ██│     ████     █  █     ████"
+    echo "    └────┘ └────┘ └─┘    └─┘└─────┘ └────┘   └─┘     ▀███▄            ▄███▀"
+    echo "│                                                       ▀▀████████████▀▀      │"
+    echo "└──                                                                         ──┘"
 end

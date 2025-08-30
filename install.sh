@@ -482,4 +482,16 @@ function install_homebrew() {
     fi
 }
 
+function install_asdf() {
+    if ! command -v asdf &> /dev/null; then
+        log "Installing asdf..."
+        if os_is_macos; then
+            brew install asdf
+        elif os_is_linux; then
+            # TODO: need to install asdf on Linux
+            echo "⚠️ Skipping asdf installation on Linux"
+        fi
+    fi
+}
+
 main $*

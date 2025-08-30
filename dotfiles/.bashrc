@@ -100,3 +100,9 @@ je() {
 export GIT_PS1_SHOWDIRTYSTATE=1
 export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '
 export LESS="-RS#3NM~g"
+
+####################
+# ASDF configuration
+####################
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+. <(asdf completion bash)

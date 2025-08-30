@@ -216,11 +216,29 @@ main() {
     ###############
     # Install pyenv
     ###############
-    if [ -d $HOME/.pyenv ]; then
+    if [ -d $HOME/.pyenv ] && [ -n "${SKIP_PACKAGES:-}" ]; then
         log "pyenv already installed"
     else
         log "Installing pyenv..."
         curl https://pyenv.run | bash
+    fi
+
+    ##############
+    # Install asdf
+    ##############
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        install_asdf
+    else
+        log "asdf installation skipped"
+    fi
+
+    ############
+    # Install Go
+    ############
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        install_go
+    else
+        log "Go installation skipped"
     fi
 
     ############################
@@ -491,6 +509,19 @@ function install_asdf() {
             # TODO: need to install asdf on Linux
             echo "⚠️ Skipping asdf installation on Linux"
         fi
+    fi
+}
+
+function install_go() {
+    if ! command -v go &> /dev/null; then
+        log "Installing Go..."
+        if ! command -v asdf &> /dev/null; then
+            log "asdf required to install go"
+            return
+        fi
+
+        asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
+        asdf install golang latest
     fi
 }
 

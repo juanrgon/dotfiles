@@ -521,7 +521,7 @@ function install_go() {
         fi
 
         asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
-        asdf install golang latest
+        asdf install -u golang latest
     fi
 }
 

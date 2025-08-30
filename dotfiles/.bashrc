@@ -106,3 +106,10 @@ export LESS="-RS#3NM~g"
 ####################
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 . <(asdf completion bash)
+
+##########
+# Setup go
+##########
+if type -p go >/dev/null; then
+    export PATH="$PATH:$(go env GOPATH)/bin"
+fi

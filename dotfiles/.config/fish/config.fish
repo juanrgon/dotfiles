@@ -121,3 +121,10 @@ set --export LESS "-RS#3NM~g"
 if test -d "$HOME/.asdf/shims"
     set --export PATH "$HOME/.asdf/shims" $PATH
 end
+
+##########
+# Go setup
+##########
+if command -v go >/dev/null 2>&1
+    set --export PATH (go env GOPATH)/bin $PATH
+end

@@ -533,6 +533,11 @@ function install_go() {
         log "Installing delve..."
         go install github.com/go-delve/delve/cmd/dlv@latest
     fi
+
+    if ! command -v gopls &> /dev/null; then
+        log "Installing gopls..."
+        go install golang.org/x/tools/gopls@latest
+    fi
 }
 
 main $*

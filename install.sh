@@ -216,7 +216,7 @@ main() {
     ###############
     # Install pyenv
     ###############
-    if [ -d $HOME/.pyenv ] && [ -n "${SKIP_PACKAGES:-}" ]; then
+    if [ -d $HOME/.pyenv ]; then
         log "pyenv already installed"
     else
         log "Installing pyenv..."

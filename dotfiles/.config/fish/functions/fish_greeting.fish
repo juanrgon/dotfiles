@@ -1,7 +1,7 @@
 function fish_greeting
     # Check if we should show copilot greeting
     if test "$BUILDING_COPILOT" = "true"
-        copilot
+        _copilot_banner
         return
     end
 
@@ -140,7 +140,7 @@ function night
     printf '\e[0m'
 end
 
-function copilot
+function _copilot_banner
     # Precomputed vertical gradient from #00A0FF to #FF0080 (12 steps)
     printf "\e[38;2;0;160;255m┌──                                                                         ──┐\e[0m\n"
     printf "\e[38;2;23;145;243m│                                                           ▄██████▄          │\e[0m\n"

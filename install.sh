@@ -513,16 +513,17 @@ function install_asdf() {
 }
 
 function install_go() {
-    if ! command -v go &> /dev/null; then
-        log "Installing Go..."
-        if ! command -v asdf &> /dev/null; then
-            log "asdf required to install go"
-            return
-        fi
+    # TODO: refactor this to not install with asdf
+    # if ! command -v go &> /dev/null; then
+    #     log "Installing Go..."
+    #     if ! command -v asdf &> /dev/null; then
+    #         log "asdf required to install go"
+    #         return
+    #     fi
 
-        asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
-        asdf install -u golang latest
-    fi
+    #     asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
+    #     asdf install -u golang latest
+    # fi
 
     if ! command -v golangci-lint &> /dev/null; then
         log "installing golangci-lint..."

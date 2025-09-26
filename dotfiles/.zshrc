@@ -98,13 +98,3 @@ function git_prompt_info() {
 }
 
 export LESS="-RS#3NM~g"
-
-# ASDF configuration
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
-
-##########
-# Setup go
-##########
-if type -p go >/dev/null; then
-    export PATH="$PATH:$(go env GOPATH)/bin"
-fi

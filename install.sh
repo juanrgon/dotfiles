@@ -134,6 +134,7 @@ main() {
             fzf \
             hub \
             vim \
+            neovim \
             git \
             htop \
             rsync \

@@ -177,10 +177,6 @@ main() {
     # Create shortcuts for rust alternatives to standard POSIX commands
     ###################################################################
     log "Adding rust cli alternative shortcuts..."
-    if [ -x bat ]; then
-        shortcut cat    bat
-    fi
-
     if [ -x exa ]; then
         shortcut l      exa
         shortcut ll     exa --long --icons --group-directories-first --all

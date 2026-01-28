@@ -69,7 +69,7 @@ func checkStatus(repoPath string) string {
 		return ""
 	}
 
-	return "📦" + strings.Join(indicators, "")
+	return "dotfiles[" + strings.Join(indicators, "") + "]"
 }
 
 func isDirty(repoPath string) bool {

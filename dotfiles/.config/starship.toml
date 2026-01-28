@@ -2,7 +2,7 @@
 # https://starship.rs/config/
 
 format = """
-╭─$custom$directory$git_branch$git_status
+╭─$custom$directory$git_branch$git_status$git_state
 ╰─ """
 
 # Disable slow/unwanted modules
@@ -40,18 +40,30 @@ format = "[ $symbol$branch ]($style)"
 style = "bg:green fg:black"
 symbol = " "
 
-# Git status - shows dirty/staged indicators
+# Git status - shows all status indicators with counts
 [git_status]
-format = "[$all_status$ahead_behind]($style)"
+format = "[$all_status$ahead_behind ]($style)"
 style = "bg:green fg:black"
-modified = "[!](bg:red fg:black)"
-staged = "[+](bg:yellow fg:black)"
-untracked = "[?](bg:red fg:black)"
-deleted = "[✘](bg:red fg:black)"
-ahead = "⇡"
-behind = "⇣"
-diverged = "⇕"
-stashed = "$"
+conflicted = "[=$count](bg:red fg:white bold)"
+ahead = "[⇡$count](bg:green fg:black)"
+behind = "[⇣$count](bg:green fg:black)"
+diverged = "[⇕⇡$ahead_count⇣$behind_count](bg:yellow fg:black)"
+untracked = "[?$count](bg:yellow fg:black)"
+stashed = "[\\$$count](bg:purple fg:white)"
+modified = "[!$count](bg:red fg:white)"
+staged = "[+$count](bg:yellow fg:black)"
+renamed = "[»$count](bg:yellow fg:black)"
+deleted = "[✘$count](bg:red fg:white)"
+
+# Git state - shows rebase/merge/cherry-pick progress
+[git_state]
+format = "[ $state ($progress_current/$progress_total) ]($style)"
+style = "bg:yellow fg:black"
+rebase = "REBASING"
+merge = "MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
 
 # Holiday/season emoji (fast compiled binary)
 [custom.holiday]

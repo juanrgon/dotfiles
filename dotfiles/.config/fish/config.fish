@@ -56,16 +56,12 @@ if type --quiet code
 end
 
 #############
-# Setup pyenv
+# Setup pyenv (lazy-loaded for fast startup)
 #############
 set --export PYENV_ROOT $HOME/.pyenv
-if test -d $PYENV_ROOT/bin
-    set --export fish_user_paths $PYENV_ROOT/bin $fish_user_paths
-    pyenv init - | source
-
-    if type --quiet pyenv-virtualenv-init
-        pyenv virtualenv-init - | source
-    end
+if test -d $PYENV_ROOT
+    # Just add shims to PATH - pyenv will work without full init
+    set --export fish_user_paths $PYENV_ROOT/shims $PYENV_ROOT/bin $fish_user_paths
 end
 
 ############
@@ -125,8 +121,9 @@ end
 ##########
 # Go setup
 ##########
-if command -v go >/dev/null 2>&1
-    set --export PATH (go env GOPATH)/bin $PATH
+# Use default GOPATH ($HOME/go) to avoid slow `go env` call
+if test -d $HOME/go/bin
+    set --export PATH $HOME/go/bin $PATH
 end
 
 ######################

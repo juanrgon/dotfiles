@@ -100,12 +100,16 @@ function streamline_dir_segment
     echo black
 end
 
+# Git segment with dirty/staged colors using fast git diff checks
 function streamline_git_segment
-    if git_is_repo  # git_is_repo is a built-in fish function
-        echo " "(git_branch_name)  # git_branch_name is a built-in fish function
-        if git_is_dirty # git_branch_name is a built-in fish function
+    set -l branch (git branch --show-current 2>/dev/null)
+    if test -n "$branch"
+        echo " $branch"
+        # Check for uncommitted changes (staged or unstaged)
+        if not git diff --quiet HEAD 2>/dev/null
             echo red
-        else if git_is_staged  # git_is_staged is a built-in fish function
+        # Check for staged changes only
+        else if not git diff --cached --quiet 2>/dev/null
             echo yellow
         else
             echo green
@@ -166,7 +170,8 @@ function thanksgiving_week
     end | sort
 end
 
-function streamline_holiday_segment
+# Internal function to compute holiday emoji and colors (called once per day)
+function __streamline_compute_holiday
     set -l current_date (date "+%m-%d")
     set -l holiday_emoji
     set -l bg_color
@@ -239,7 +244,22 @@ function streamline_holiday_segment
             set holiday_emoji (choose_random_emoji $season_emojis)
     end
 
-    echo $holiday_emoji
-    echo $bg_color
+    # Cache the results as global variables
+    set -g __streamline_holiday_date $current_date
+    set -g __streamline_holiday_emoji $holiday_emoji
+    set -g __streamline_holiday_bg $bg_color
+end
+
+# Optimized holiday segment - caches emoji/colors for the day
+function streamline_holiday_segment
+    set -l current_date (date "+%m-%d")
+
+    # Recompute if date changed or cache is empty
+    if test "$__streamline_holiday_date" != "$current_date"
+        __streamline_compute_holiday
+    end
+
+    echo $__streamline_holiday_emoji
+    echo $__streamline_holiday_bg
     echo white
 end

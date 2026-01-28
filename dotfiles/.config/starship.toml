@@ -2,10 +2,7 @@
 # https://starship.rs/config/
 
 format = """
-╭─[](fg:#ADD8E6)${custom.holiday}\
-[](fg:#ADD8E6 bg:blue)$directory\
-[](fg:blue bg:green)$git_branch$git_status\
-[](fg:green)$git_state
+╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status[](fg:green)$git_state
 ╰─${custom.dotfiles} """
 
 # Disable slow/unwanted modules
@@ -41,7 +38,7 @@ truncate_to_repo = false
 [git_branch]
 format = "[ $symbol$branch]($style)"
 style = "bg:green fg:black"
-symbol = " "
+symbol = " "
 
 # Git status
 [git_status]

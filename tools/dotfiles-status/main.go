@@ -11,6 +11,7 @@ import (
 )
 
 const cacheDuration = 60 * time.Second
+const cleanMarker = "__CLEAN__"
 
 func main() {
 	home, err := os.UserHomeDir()
@@ -26,14 +27,18 @@ func main() {
 
 	// Check cache first
 	cacheFile := getCacheFile(home, dotfilesPath)
-	if cached := readCache(cacheFile); cached != "" {
-		fmt.Print(cached)
+	if cached, ok := readCache(cacheFile); ok {
+		if cached != cleanMarker {
+			fmt.Print(cached)
+		}
 		return
 	}
 
 	status := checkStatus(dotfilesPath)
-	writeCache(cacheFile, status)
-	if status != "" {
+	if status == "" {
+		writeCache(cacheFile, cleanMarker)
+	} else {
+		writeCache(cacheFile, status)
 		fmt.Print(status)
 	}
 }
@@ -46,23 +51,23 @@ func getCacheFile(home, repoPath string) string {
 	return filepath.Join(cacheDir, hash)
 }
 
-func readCache(cacheFile string) string {
+func readCache(cacheFile string) (string, bool) {
 	info, err := os.Stat(cacheFile)
 	if err != nil {
-		return ""
+		return "", false
 	}
 
 	// Check if cache is still valid
 	if time.Since(info.ModTime()) > cacheDuration {
-		return ""
+		return "", false
 	}
 
 	data, err := os.ReadFile(cacheFile)
 	if err != nil {
-		return ""
+		return "", false
 	}
 
-	return string(data)
+	return string(data), true
 }
 
 func writeCache(cacheFile, status string) {

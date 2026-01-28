@@ -207,6 +207,7 @@ main() {
     if [[ -z "${SKIP_PACKAGES:-}" ]]; then
         install_starship
         install_holiday_emoji
+        install_dotfiles_status
     else
         log "starship installation skipped"
     fi
@@ -468,6 +469,24 @@ function install_holiday_emoji() {
         cd "$THIS_DIR/tools/holiday-emoji" && \
         go build -o "$PERSONAL_SCRIPTS_DIR/holiday-emoji" .
     ) || log "Warning: Failed to build holiday-emoji, skipping"
+}
+
+function install_dotfiles_status() {
+    if ! command -v go &> /dev/null; then
+        log "Go not installed, skipping dotfiles-status"
+        return
+    fi
+
+    if [[ ! -d "$THIS_DIR/tools/dotfiles-status" ]]; then
+        log "dotfiles-status source not found, skipping"
+        return
+    fi
+
+    log "Building dotfiles-status..."
+    (
+        cd "$THIS_DIR/tools/dotfiles-status" && \
+        go build -o "$PERSONAL_SCRIPTS_DIR/dotfiles-status" .
+    ) || log "Warning: Failed to build dotfiles-status, skipping"
 }
 
 function install_awscli() {

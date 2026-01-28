@@ -2,8 +2,8 @@
 # https://starship.rs/config/
 
 format = """
-╭─$custom$directory$git_branch$git_status$git_state
-╰─ """
+╭─${custom.holiday}$directory$git_branch$git_status$git_state
+╰─${custom.dotfiles} """
 
 # Disable slow/unwanted modules
 [aws]
@@ -71,3 +71,10 @@ command = "holiday-emoji"
 when = "command -v holiday-emoji > /dev/null"
 format = "[$output ]($style)"
 style = "bg:#ADD8E6"
+
+# Dotfiles sync status indicator
+[custom.dotfiles]
+command = "dotfiles-status"
+when = "command -v dotfiles-status > /dev/null"
+format = "[$output]($style)"
+style = "yellow"

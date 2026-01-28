@@ -2,8 +2,8 @@
 # https://starship.rs/config/
 
 format = """
-╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}$git_state
-╰─${custom.dotfiles} """
+╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}$git_state  ${custom.dotfiles} 
+╰─ """
 
 # Disable slow/unwanted modules
 [aws]

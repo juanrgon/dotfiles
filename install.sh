@@ -218,6 +218,7 @@ main() {
         install_starship
         install_holiday_emoji
         install_dotfiles_status
+        install_git_segment
     else
         log "starship installation skipped"
     fi
@@ -501,6 +502,24 @@ function install_dotfiles_status() {
         cd "$THIS_DIR/tools/dotfiles-status" && \
         go build -o "$PERSONAL_SCRIPTS_DIR/dotfiles-status" .
     ) || log "Warning: Failed to build dotfiles-status, skipping"
+}
+
+function install_git_segment() {
+    if ! command -v go &> /dev/null; then
+        log "Go not installed, skipping git-segment"
+        return
+    fi
+
+    if [[ ! -d "$THIS_DIR/tools/git-segment" ]]; then
+        log "git-segment source not found, skipping"
+        return
+    fi
+
+    log "Building git-segment..."
+    (
+        cd "$THIS_DIR/tools/git-segment" && \
+        go build -o "$PERSONAL_SCRIPTS_DIR/git-segment" .
+    ) || log "Warning: Failed to build git-segment, skipping"
 }
 
 function install_awscli() {

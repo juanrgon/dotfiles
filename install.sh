@@ -422,6 +422,8 @@ function macos_install_fonts() {
     fi
 
     brew install --cask \
+        font-monaspace \
+        font-monaspace-nerd-font \
         font-fira-code-nerd-font \
         font-hasklug-nerd-font
 }

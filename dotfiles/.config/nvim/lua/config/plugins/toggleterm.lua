@@ -4,7 +4,10 @@ return {
     "akinsho/toggleterm.nvim",
     version = "*",
     keys = {
-      { "<C-`>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal (VS Code)" },
+      { "<C-`>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
+      { "<C-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal (Cmd+J via Ghostty)" },
+      { "<D-j>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal (Cmd+J)" },
+      { "<leader>j", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
       { "<leader>tt", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
       { "<leader>tf", "<cmd>ToggleTerm direction=float<cr>", desc = "Float terminal" },
       { "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Horizontal terminal" },

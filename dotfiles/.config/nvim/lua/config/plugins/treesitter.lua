@@ -5,8 +5,9 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require("nvim-treesitter.configs").setup({
+      -- Neovim 0.11+ uses vim.treesitter directly
+      -- nvim-treesitter is mainly for parser installation now
+      require("nvim-treesitter").setup({
         ensure_installed = {
           "bash",
           "c",
@@ -42,22 +43,20 @@ return {
           "yaml",
         },
         auto_install = true,
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-        indent = {
-          enable = true,
-        },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = "<C-space>",
-            node_incremental = "<C-space>",
-            scope_incremental = false,
-            node_decremental = "<bs>",
-          },
-        },
+      })
+
+      -- Enable treesitter-based highlighting
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          pcall(vim.treesitter.start)
+        end,
+      })
+
+      -- Enable treesitter-based indentation
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
       })
     end,
   },

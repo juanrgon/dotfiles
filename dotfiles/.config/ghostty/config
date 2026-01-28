@@ -3,3 +3,6 @@
 # Use GitHub Monaspace Variable font
 font-family = "Monaspace Neon Var"
 font-size = 14
+
+# Pass Cmd+J to Neovim for terminal toggle (sends Ctrl+\)
+keybind = super+j=text:\x1c

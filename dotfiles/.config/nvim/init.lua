@@ -3,6 +3,11 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Neovim 0.11 compatibility shim for plugins using deprecated API
+if vim.treesitter.language.get_lang and not vim.treesitter.language.ft_to_lang then
+  vim.treesitter.language.ft_to_lang = vim.treesitter.language.get_lang
+end
+
 -- Load core configuration
 require("config.options")
 require("config.keymaps")

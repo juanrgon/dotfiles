@@ -8,7 +8,7 @@ return {
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
-    cmd = "Neotree",
+    lazy = false, -- Load on startup
     keys = {
       { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Explorer (toggle)" },
       { "<C-b>", "<cmd>Neotree toggle<cr>", desc = "Explorer (VS Code)" },
@@ -91,5 +91,16 @@ return {
         },
       },
     },
+    init = function()
+      -- Open neo-tree on startup
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function()
+          if vim.fn.argc() == 0 then
+            -- Only open if no file arguments were passed
+            vim.cmd("Neotree show")
+          end
+        end,
+      })
+    end,
   },
 }

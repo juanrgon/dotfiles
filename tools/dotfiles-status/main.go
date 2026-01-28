@@ -1,12 +1,16 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+const cacheDuration = 60 * time.Second
 
 func main() {
 	home, err := os.UserHomeDir()
@@ -20,10 +24,49 @@ func main() {
 		return
 	}
 
+	// Check cache first
+	cacheFile := getCacheFile(home, dotfilesPath)
+	if cached := readCache(cacheFile); cached != "" {
+		fmt.Print(cached)
+		return
+	}
+
 	status := checkStatus(dotfilesPath)
+	writeCache(cacheFile, status)
 	if status != "" {
 		fmt.Print(status)
 	}
+}
+
+func getCacheFile(home, repoPath string) string {
+	// Create unique cache file based on repo path
+	hash := fmt.Sprintf("%x", md5.Sum([]byte(repoPath)))[:8]
+	cacheDir := filepath.Join(home, ".cache", "dotfiles-status")
+	os.MkdirAll(cacheDir, 0755)
+	return filepath.Join(cacheDir, hash)
+}
+
+func readCache(cacheFile string) string {
+	info, err := os.Stat(cacheFile)
+	if err != nil {
+		return ""
+	}
+
+	// Check if cache is still valid
+	if time.Since(info.ModTime()) > cacheDuration {
+		return ""
+	}
+
+	data, err := os.ReadFile(cacheFile)
+	if err != nil {
+		return ""
+	}
+
+	return string(data)
+}
+
+func writeCache(cacheFile, status string) {
+	os.WriteFile(cacheFile, []byte(status), 0644)
 }
 
 func findDotfiles(home string) string {
@@ -51,12 +94,12 @@ func isGitRepo(path string) bool {
 func checkStatus(repoPath string) string {
 	var indicators []string
 
-	// Check for uncommitted changes (dirty)
+	// Check for uncommitted changes (dirty) - this is fast
 	if isDirty(repoPath) {
 		indicators = append(indicators, "!")
 	}
 
-	// Check for unpushed commits
+	// Check for unpushed commits - can be slower
 	ahead, behind := getAheadBehind(repoPath)
 	if ahead > 0 {
 		indicators = append(indicators, fmt.Sprintf("⇡%d", ahead))

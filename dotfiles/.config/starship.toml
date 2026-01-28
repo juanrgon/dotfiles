@@ -2,7 +2,7 @@
 # https://starship.rs/config/
 
 format = """
-╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status[](fg:green)$git_state
+╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status$git_state
 ╰─${custom.dotfiles} """
 
 # Disable slow/unwanted modules
@@ -42,7 +42,7 @@ symbol = " "
 
 # Git status
 [git_status]
-format = "[ $all_status$ahead_behind]($style)"
+format = "[ $all_status$ahead_behind]($style)[](fg:green)"
 style = "bg:green fg:black"
 conflicted = "="
 ahead = "⇡"

@@ -421,11 +421,13 @@ function macos_install_fonts() {
         return
     fi
 
-    brew install --cask \
+    # Use --force to overwrite existing fonts, ignore errors for already installed
+    brew install --cask --force \
         font-monaspace \
         font-monaspace-nerd-font \
         font-fira-code-nerd-font \
-        font-hasklug-nerd-font
+        font-hasklug-nerd-font \
+        2>/dev/null || log "Some fonts may already be installed"
 }
 
 function install_onepassword_cli() {

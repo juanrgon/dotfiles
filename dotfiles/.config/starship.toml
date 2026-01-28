@@ -1,8 +1,11 @@
-# Starship prompt - styled like my old fish prompt
+# Starship prompt - powerline style
 # https://starship.rs/config/
 
 format = """
-╭─${custom.holiday}$directory$git_branch$git_status$git_state
+╭─[](fg:#ADD8E6)${custom.holiday}\
+[](fg:#ADD8E6 bg:blue)$directory\
+[](fg:blue bg:green)$git_branch$git_status\
+[](fg:green)$git_state
 ╰─${custom.dotfiles} """
 
 # Disable slow/unwanted modules
@@ -27,7 +30,7 @@ disabled = true
 [package]
 disabled = true
 
-# Directory - blue background like old prompt
+# Directory - blue background
 [directory]
 format = "[ $path ]($style)"
 style = "bg:blue fg:black"
@@ -36,24 +39,24 @@ truncate_to_repo = false
 
 # Git branch - green background
 [git_branch]
-format = "[ $symbol$branch ]($style)"
+format = "[ $symbol$branch]($style)"
 style = "bg:green fg:black"
 symbol = " "
 
-# Git status - shows all status indicators with counts
+# Git status
 [git_status]
-format = "[$all_status$ahead_behind ]($style)"
+format = "[ $all_status$ahead_behind]($style)"
 style = "bg:green fg:black"
-conflicted = "[=$count](bg:red fg:white bold)"
-ahead = "[⇡$count](bg:green fg:black)"
-behind = "[⇣$count](bg:green fg:black)"
-diverged = "[⇕⇡$ahead_count⇣$behind_count](bg:yellow fg:black)"
-untracked = "[?$count](bg:yellow fg:black)"
-stashed = "[\\$$count](bg:purple fg:white)"
-modified = "[!$count](bg:red fg:white)"
-staged = "[+$count](bg:yellow fg:black)"
-renamed = "[»$count](bg:yellow fg:black)"
-deleted = "[✘$count](bg:red fg:white)"
+conflicted = "="
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+untracked = "?"
+stashed = "$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
 
 # Git state - shows rebase/merge/cherry-pick progress
 [git_state]
@@ -69,12 +72,12 @@ bisect = "BISECTING"
 [custom.holiday]
 command = "holiday-emoji"
 when = true
-format = "[$output ]($style)"
-style = "bg:#ADD8E6"
+format = "[ $output ]($style)"
+style = "bg:#ADD8E6 fg:black"
 
 # Dotfiles sync status indicator
 [custom.dotfiles]
 command = "dotfiles-status"
 when = true
-format = "[$output]($style)"
+format = "[$output ]($style)"
 style = "yellow"

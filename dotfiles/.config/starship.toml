@@ -1,8 +1,63 @@
-# Starship prompt configuration
+# Starship prompt - styled like my old fish prompt
 # https://starship.rs/config/
 
+format = """
+╭─$custom$directory$git_branch$git_status
+╰─ """
+
+# Disable slow/unwanted modules
 [aws]
 disabled = true
 
 [gcloud]
 disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[golang]
+disabled = true
+
+[rust]
+disabled = true
+
+[package]
+disabled = true
+
+# Directory - blue background like old prompt
+[directory]
+format = "[ $path ]($style)"
+style = "bg:blue fg:black"
+truncation_length = 3
+truncate_to_repo = false
+
+# Git branch - green background
+[git_branch]
+format = "[ $symbol$branch ]($style)"
+style = "bg:green fg:black"
+symbol = " "
+
+# Git status - shows dirty/staged indicators
+[git_status]
+format = "[$all_status$ahead_behind]($style)"
+style = "bg:green fg:black"
+modified = "[!](bg:red fg:black)"
+staged = "[+](bg:yellow fg:black)"
+untracked = "[?](bg:red fg:black)"
+deleted = "[✘](bg:red fg:black)"
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+stashed = "$"
+
+# Holiday/season emoji (computed daily via custom command)
+# NOTE: This calls fish which adds ~50ms. Disable if you want max speed.
+[custom.holiday]
+disabled = true  # set to false to enable
+command = "fish -c 'streamline_holiday_segment | head -1'"
+when = "true"
+format = "[$output ]($style)"
+style = "bg:#ADD8E6"

@@ -53,11 +53,9 @@ behind = "⇣"
 diverged = "⇕"
 stashed = "$"
 
-# Holiday/season emoji (computed daily via custom command)
-# NOTE: This calls fish which adds ~50ms. Disable if you want max speed.
+# Holiday/season emoji (fast compiled binary)
 [custom.holiday]
-disabled = true  # set to false to enable
-command = "fish -c 'streamline_holiday_segment | head -1'"
-when = "true"
+command = "holiday-emoji"
+when = "command -v holiday-emoji > /dev/null"
 format = "[$output ]($style)"
 style = "bg:#ADD8E6"

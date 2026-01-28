@@ -85,16 +85,23 @@ j() {
     fi
 }
 
-setopt PROMPT_SUBST
-export PS1='%B%F{blue}%~ $(git_prompt_info)%f%b
+export LESS="-RS#3NM~g"
+
+####################
+# Starship prompt
+####################
+if type -p starship >/dev/null; then
+    eval "$(starship init zsh)"
+else
+    setopt PROMPT_SUBST
+    export PS1='%B%F{blue}%~ $(git_prompt_info)%f%b
 $ '
 
-# define function to add git information to prompt
-function git_prompt_info() {
-  git_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
-  if [ $? -eq 0 ]; then
-    echo "%{$fg[yellow]%}($git_branch)"
-  fi
-}
-
-export LESS="-RS#3NM~g"
+    # define function to add git information to prompt
+    function git_prompt_info() {
+      git_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+      if [ $? -eq 0 ]; then
+        echo "%{$fg[yellow]%}($git_branch)"
+      fi
+    }
+fi

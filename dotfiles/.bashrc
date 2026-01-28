@@ -98,5 +98,13 @@ je() {
 
 . ~/git-prompt.sh
 export GIT_PS1_SHOWDIRTYSTATE=1
-export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '
 export LESS="-RS#3NM~g"
+
+####################
+# Starship prompt
+####################
+if type -p starship >/dev/null; then
+    eval "$(starship init bash)"
+else
+    export PS1='\n\[\033[01;34m\]\w \[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\n\$ '
+fi

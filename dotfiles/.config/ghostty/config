@@ -1,5 +1,5 @@
 # Ghostty terminal configuration
 
-# Use GitHub Monaspace Nerd Font for icon support
-font-family = "MonaspiceNe Nerd Font"
+# Use GitHub Monaspace Variable font
+font-family = "Monaspace Neon Var"
 font-size = 14

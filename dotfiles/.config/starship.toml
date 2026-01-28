@@ -2,8 +2,8 @@
 # https://starship.rs/config/
 
 format = """
-╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status$git_state
-╰─ """
+╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}$git_state
+╰─${custom.dotfiles} """
 
 # Disable slow/unwanted modules
 [aws]
@@ -27,33 +27,18 @@ disabled = true
 [package]
 disabled = true
 
+[git_branch]
+disabled = true
+
+[git_status]
+disabled = true
+
 # Directory - blue background
 [directory]
 format = "[ $path ]($style)"
 style = "bg:blue fg:black"
 truncation_length = 3
 truncate_to_repo = false
-
-# Git branch - green background
-[git_branch]
-format = "[ $symbol$branch]($style)"
-style = "bg:green fg:black"
-symbol = " "
-
-# Git status - colored indicators
-[git_status]
-format = "[ $all_status$ahead_behind]($style)[](fg:green)"
-style = "bg:green fg:black"
-conflicted = "[=](bg:red fg:white bold)"
-ahead = "[⇡](bg:green fg:black)"
-behind = "[⇣](bg:green fg:black)"
-diverged = "[⇕](bg:yellow fg:black)"
-untracked = "[?](bg:yellow fg:black)"
-stashed = "[$](bg:purple fg:white)"
-modified = "[!](bg:red fg:white)"
-staged = "[+](bg:yellow fg:black)"
-renamed = "[»](bg:blue fg:white)"
-deleted = "[✘](bg:red fg:white)"
 
 # Git state - shows rebase/merge/cherry-pick progress
 [git_state]
@@ -72,6 +57,13 @@ when = true
 ignore_timeout = true
 format = "[ $output ]($style)"
 style = "bg:#ADD8E6 fg:black"
+
+# Git segment with dynamic colors (green=clean, yellow=staged/untracked, red=modified)
+[custom.git]
+command = "git-segment"
+when = "git rev-parse --git-dir 2>/dev/null"
+ignore_timeout = true
+format = "$output"
 
 # Dotfiles sync status indicator
 [custom.dotfiles]

@@ -107,10 +107,10 @@ func checkStatus(repoPath string) string {
 	// Check for unpushed commits - can be slower
 	ahead, behind := getAheadBehind(repoPath)
 	if ahead > 0 {
-		indicators = append(indicators, fmt.Sprintf("⇡%d", ahead))
+		indicators = append(indicators, fmt.Sprintf("^%d", ahead))
 	}
 	if behind > 0 {
-		indicators = append(indicators, fmt.Sprintf("⇣%d", behind))
+		indicators = append(indicators, fmt.Sprintf("v%d", behind))
 	}
 
 	if len(indicators) == 0 {

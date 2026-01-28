@@ -158,12 +158,22 @@ main() {
     export PATH="$HOME/.cargo/bin:$PATH"
     if [[ -z "${SKIP_PACKAGES:-}" ]]; then
         log "Installing rust packages..."
-        cargo install --locked \
-            bat \
-            exa \
-            git-delta \
-            chatgpt-cli \
-            tokei || log "Warning: Failed to install rust packages"
+        install_cargo_binstall
+
+        # Use binstall for pre-compiled binaries (much faster than cargo install)
+        if command -v cargo-binstall &> /dev/null; then
+            cargo binstall --no-confirm \
+                bat \
+                eza \
+                git-delta \
+                tokei || log "Warning: Failed to install some rust packages"
+        else
+            cargo install --locked \
+                bat \
+                eza \
+                git-delta \
+                tokei || log "Warning: Failed to install rust packages"
+        fi
     else
         log "Rust packages installation skipped"
     fi
@@ -529,6 +539,18 @@ function install_rust() {
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     log "rustup already installed"
+}
+
+function install_cargo_binstall() {
+    if command -v cargo-binstall &> /dev/null; then
+        log "cargo-binstall already installed"
+        return
+    fi
+
+    log "Installing cargo-binstall..."
+    curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash || {
+        log "Warning: Failed to install cargo-binstall, will fall back to cargo install"
+    }
 }
 
 function install_ruby() {

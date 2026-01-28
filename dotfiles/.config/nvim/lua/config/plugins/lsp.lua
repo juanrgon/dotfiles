@@ -16,10 +16,13 @@ return {
     },
   },
 
-  -- Mason-lspconfig bridge
+  -- Mason-lspconfig bridge (auto-installs and enables LSP servers)
   {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = {
+      "williamboman/mason.nvim",
+      "hrsh7th/cmp-nvim-lsp",
+    },
     opts = {
       ensure_installed = {
         "lua_ls",
@@ -35,21 +38,48 @@ return {
         "tailwindcss",
         "eslint",
       },
-      automatic_installation = true,
+      automatic_enable = true,
     },
+    config = function(_, opts)
+      -- Set up default capabilities for all LSP servers (for nvim-cmp)
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+      -- Configure LSP servers using vim.lsp.config (Neovim 0.11+ API)
+      vim.lsp.config("*", {
+        capabilities = capabilities,
+      })
+
+      -- Lua-specific config
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            runtime = { version = "LuaJIT" },
+            workspace = {
+              checkThirdParty = false,
+              library = { vim.env.VIMRUNTIME },
+            },
+            completion = { callSnippet = "Replace" },
+            diagnostics = { globals = { "vim" } },
+          },
+        },
+      })
+
+      require("mason-lspconfig").setup(opts)
+    end,
   },
 
-  -- LSP config
+  -- Fidget for LSP progress
+  { "j-hui/fidget.nvim", event = "LspAttach", opts = {} },
+
+  -- Setup keymaps when LSP attaches
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
-      { "j-hui/fidget.nvim", opts = {} },
     },
     config = function()
-      -- Setup keymaps when LSP attaches
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
@@ -82,45 +112,6 @@ return {
           map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
         end,
       })
-
-      -- LSP capabilities with nvim-cmp
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-      -- Server configurations
-      local servers = {
-        lua_ls = {
-          settings = {
-            Lua = {
-              runtime = { version = "LuaJIT" },
-              workspace = {
-                checkThirdParty = false,
-                library = { vim.env.VIMRUNTIME },
-              },
-              completion = { callSnippet = "Replace" },
-              diagnostics = { globals = { "vim" } },
-            },
-          },
-        },
-        ts_ls = {},
-        pyright = {},
-        rust_analyzer = {},
-        gopls = {},
-        bashls = {},
-        jsonls = {},
-        yamlls = {},
-        html = {},
-        cssls = {},
-        tailwindcss = {},
-        eslint = {},
-      }
-
-      -- Setup servers
-      local lspconfig = require("lspconfig")
-      for server, config in pairs(servers) do
-        config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, config.capabilities or {})
-        lspconfig[server].setup(config)
-      end
     end,
   },
 }

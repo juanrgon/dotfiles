@@ -223,6 +223,15 @@ main() {
         log "starship installation skipped"
     fi
 
+    ######################
+    # Install fish plugins
+    ######################
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        install_fish_plugins
+    else
+        log "Fish plugins installation skipped"
+    fi
+
     ##############
     # Install node
     ##############
@@ -465,6 +474,29 @@ function install_starship() {
         brew install starship
     elif os_is_linux; then
         curl -sS https://starship.rs/install.sh | sh -s -- -y
+    fi
+}
+
+function install_fish_plugins() {
+    if ! command -v fish &> /dev/null; then
+        log "Fish not installed, skipping fish plugins"
+        return
+    fi
+
+    # Install fisher if not already installed
+    if ! fish -c "type -q fisher" &> /dev/null; then
+        log "Installing fisher..."
+        fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+    else
+        log "fisher already installed"
+    fi
+
+    # Install abbreviation-tips (like alias-tips for zsh)
+    if ! fish -c "fisher list | grep -q gazorby/fish-abbreviation-tips" &> /dev/null; then
+        log "Installing fish-abbreviation-tips..."
+        fish -c "fisher install gazorby/fish-abbreviation-tips"
+    else
+        log "fish-abbreviation-tips already installed"
     fi
 }
 

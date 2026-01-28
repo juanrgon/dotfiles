@@ -2,8 +2,8 @@
 # https://starship.rs/config/
 
 format = """
-╭─[](fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status$git_state
-╰─${custom.dotfiles} """
+╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory[](fg:blue bg:green)$git_branch$git_status$git_state
+╰─ """
 
 # Disable slow/unwanted modules
 [aws]
@@ -40,20 +40,20 @@ format = "[ $symbol$branch]($style)"
 style = "bg:green fg:black"
 symbol = " "
 
-# Git status
+# Git status - colored indicators
 [git_status]
 format = "[ $all_status$ahead_behind]($style)[](fg:green)"
 style = "bg:green fg:black"
-conflicted = "="
-ahead = "⇡"
-behind = "⇣"
-diverged = "⇕"
-untracked = "?"
-stashed = "$"
-modified = "!"
-staged = "+"
-renamed = "»"
-deleted = "✘"
+conflicted = "[=](bg:red fg:white bold)"
+ahead = "[⇡](bg:green fg:black)"
+behind = "[⇣](bg:green fg:black)"
+diverged = "[⇕](bg:yellow fg:black)"
+untracked = "[?](bg:yellow fg:black)"
+stashed = "[$](bg:purple fg:white)"
+modified = "[!](bg:red fg:white)"
+staged = "[+](bg:yellow fg:black)"
+renamed = "[»](bg:blue fg:white)"
+deleted = "[✘](bg:red fg:white)"
 
 # Git state - shows rebase/merge/cherry-pick progress
 [git_state]

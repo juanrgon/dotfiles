@@ -45,15 +45,15 @@ symbol = " "
 format = "[$all_status$ahead_behind ]($style)"
 style = "bg:green fg:black"
 conflicted = "[=$count](bg:red fg:white bold)"
-ahead = "[^$count](bg:green fg:black)"
-behind = "[v$count](bg:green fg:black)"
-diverged = "[^$ahead_count v$behind_count](bg:yellow fg:black)"
+ahead = "[⇡$count](bg:green fg:black)"
+behind = "[⇣$count](bg:green fg:black)"
+diverged = "[⇕⇡$ahead_count⇣$behind_count](bg:yellow fg:black)"
 untracked = "[?$count](bg:yellow fg:black)"
 stashed = "[\\$$count](bg:purple fg:white)"
 modified = "[!$count](bg:red fg:white)"
 staged = "[+$count](bg:yellow fg:black)"
-renamed = "[>$count](bg:yellow fg:black)"
-deleted = "[x$count](bg:red fg:white)"
+renamed = "[»$count](bg:yellow fg:black)"
+deleted = "[✘$count](bg:red fg:white)"
 
 # Git state - shows rebase/merge/cherry-pick progress
 [git_state]
@@ -68,13 +68,13 @@ bisect = "BISECTING"
 # Holiday/season emoji (fast compiled binary)
 [custom.holiday]
 command = "holiday-emoji"
-when = "command -v holiday-emoji > /dev/null"
+when = true
 format = "[$output ]($style)"
 style = "bg:#ADD8E6"
 
 # Dotfiles sync status indicator
 [custom.dotfiles]
 command = "dotfiles-status"
-when = "command -v dotfiles-status > /dev/null"
+when = true
 format = "[$output]($style)"
 style = "yellow"

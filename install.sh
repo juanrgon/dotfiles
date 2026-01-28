@@ -201,6 +201,15 @@ main() {
         log "gh cli installation skipped"
     fi
 
+    ##################
+    # Install starship
+    ##################
+    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
+        install_starship
+    else
+        log "starship installation skipped"
+    fi
+
     ##############
     # Install node
     ##############
@@ -425,6 +434,20 @@ function setup_gh() {
     if ! gh auth status &> /dev/null; then
         log "Logging into gh cli..."
         gh auth login
+    fi
+}
+
+function install_starship() {
+    if command -v starship &> /dev/null; then
+        log "starship already installed"
+        return
+    fi
+
+    log "Installing starship..."
+    if os_is_macos; then
+        brew install starship
+    elif os_is_linux; then
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
     fi
 }
 

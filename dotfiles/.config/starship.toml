@@ -1,0 +1,5 @@
+# Starship prompt configuration
+# https://starship.rs/config/
+
+[aws]
+disabled = true

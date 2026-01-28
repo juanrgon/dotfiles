@@ -128,3 +128,14 @@ end
 if command -v go >/dev/null 2>&1
     set --export PATH (go env GOPATH)/bin $PATH
 end
+
+######################
+# Starship prompt init
+######################
+# Default to starship. Override with PROMPT_THEME in local.config.fish
+# Set PROMPT_THEME to "default" to use custom fish_prompt.fish, or "tide" for tide
+if test "$PROMPT_THEME" != "default" -a "$PROMPT_THEME" != "tide"
+    if type -q starship
+        starship init fish | source
+    end
+end

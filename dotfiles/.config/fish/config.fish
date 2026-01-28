@@ -55,6 +55,13 @@ if type --quiet code
     set --export EDITOR "code --wait"
 end
 
+#####################
+# Use nvim instead of vim
+#####################
+if type --quiet nvim
+    alias vim nvim
+end
+
 #############
 # Setup pyenv (lazy-loaded for fast startup)
 #############

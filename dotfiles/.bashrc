@@ -48,6 +48,13 @@ if type -p code >/dev/null; then
     export EDITOR="code --wait"
 fi
 
+#####################
+# Use nvim instead of vim
+#####################
+if type -p nvim >/dev/null; then
+    alias vim='nvim'
+fi
+
 ##############
 # Setup zoxide
 ##############

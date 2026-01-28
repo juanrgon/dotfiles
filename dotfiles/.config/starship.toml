@@ -72,6 +72,7 @@ bisect = "BISECTING"
 [custom.holiday]
 command = "holiday-emoji"
 when = true
+ignore_timeout = true
 format = "[ $output ]($style)"
 style = "bg:#ADD8E6 fg:black"
 
@@ -79,5 +80,6 @@ style = "bg:#ADD8E6 fg:black"
 [custom.dotfiles]
 command = "dotfiles-status"
 when = true
+ignore_timeout = true
 format = "[$output ]($style)"
 style = "yellow"

@@ -98,3 +98,17 @@ opt.scrolloff = 10
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 opt.hlsearch = true
+
+-- Auto-save: save when leaving insert mode, losing focus, or switching buffers
+vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost", "BufLeave" }, {
+  pattern = "*",
+  callback = function(ev)
+    local buf = ev.buf
+    if vim.bo[buf].modified and vim.bo[buf].buftype == "" and vim.fn.bufname(buf) ~= "" then
+      vim.api.nvim_buf_call(buf, function()
+        vim.cmd("silent! write")
+      end)
+    end
+  end,
+  desc = "Auto-save on insert leave, focus lost, or buffer leave",
+})

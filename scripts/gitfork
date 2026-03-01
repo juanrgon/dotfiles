@@ -10,7 +10,7 @@ check_gh_cli() {
         echo "Install it from: https://cli.github.com/"
         exit 1
     fi
-    
+
     if ! gh auth status >/dev/null 2>&1; then
         echo "Error: GitHub CLI is not authenticated."
         echo "Run 'gh auth login' to authenticate."
@@ -26,66 +26,55 @@ get_github_handle() {
 # Function to parse org and repo from URL or slug
 parse_git_url() {
     local input="$1"
-    
+
     # Handle different GitHub URL formats
     if [[ $input =~ ^https?://github\.com/ ]]; then
-        # HTTPS GitHub URL: https://github.com/org/repo or https://github.com/org/repo.git
         input=$(echo "$input" | sed -E 's|^https?://github\.com/||' | sed 's|\.git$||' | sed 's|/$||')
-        
-        # Extract org/repo and ignore any additional path components, query params, or fragments
         input=$(echo "$input" | sed -E 's|^([^/]+/[^/?#]+).*|\1|')
-        
-        # Validate that we have exactly org/repo format
+
         if [[ ! $input =~ ^[^/]+/[^/]+$ ]]; then
             echo "Error: Could not parse valid org/repo from input: $1"
             echo "Supported formats:"
-            echo "  - repo"
-            echo "  - org/repo" 
+            echo "  - org/repo"
             echo "  - https://github.com/org/repo"
             echo "  - git@github.com:org/repo.git"
             exit 1
         fi
-        
+
         ORG=$(echo "$input" | cut -d '/' -f 1)
         REPO=$(echo "$input" | cut -d '/' -f 2)
     elif [[ $input =~ ^git@github\.com: ]]; then
-        # SSH GitHub URL: git@github.com:org/repo.git
         input=$(echo "$input" | sed 's|^git@github\.com:||' | sed 's|\.git$||')
         ORG=$(echo "$input" | cut -d '/' -f 1)
         REPO=$(echo "$input" | cut -d '/' -f 2)
     elif [[ $input =~ / ]]; then
-        # org/repo slug format
-        # Validate that we have exactly org/repo format (one slash, both parts non-empty)
         if [[ ! $input =~ ^[^/]+/[^/]+$ ]]; then
             echo "Error: Could not parse valid org/repo from input: $1"
             echo "Supported formats:"
-            echo "  - repo"
-            echo "  - org/repo" 
+            echo "  - org/repo"
             echo "  - https://github.com/org/repo"
             echo "  - git@github.com:org/repo.git"
             exit 1
         fi
-        
+
         ORG=$(echo "$input" | cut -d '/' -f 1)
         REPO=$(echo "$input" | cut -d '/' -f 2)
     else
-        # Just repo name - use authenticated user's handle as org
-        REPO="$input"
-        ORG=$(get_github_handle)
-    fi
-
-    # Validate parsed values
-    if [ -z "$ORG" ] || [ -z "$REPO" ]; then
-        echo "Error: Could not parse valid org/repo from input: $1"
+        echo "Error: Must specify org/repo to fork (cannot fork your own repo by name alone)"
         echo "Supported formats:"
-        echo "  - repo"
-        echo "  - org/repo" 
+        echo "  - org/repo"
         echo "  - https://github.com/org/repo"
         echo "  - git@github.com:org/repo.git"
         exit 1
     fi
 
-    # Validate repo name format (basic GitHub repo name rules)
+    # Validate parsed values
+    if [ -z "$ORG" ] || [ -z "$REPO" ]; then
+        echo "Error: Could not parse valid org/repo from input: $1"
+        exit 1
+    fi
+
+    # Validate repo name format
     if [[ ! $REPO =~ ^[a-zA-Z0-9._-]+$ ]]; then
         echo "Error: Invalid repository name format: $REPO"
         exit 1
@@ -103,11 +92,10 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             echo "Usage: $0 [OPTIONS] <repo>"
             echo ""
-            echo "Clone a GitHub repository to ~/github.com/org/repo"
+            echo "Fork a GitHub repository and clone it to ~/github.com/you/repo"
             echo ""
             echo "Arguments:"
             echo "  <repo>    Repository in one of these formats:"
-            echo "            - repo"
             echo "            - org/repo"
             echo "            - https://github.com/org/repo"
             echo "            - git@github.com:org/repo.git"
@@ -148,36 +136,34 @@ check_gh_cli
 # Parse org and repo from the input
 parse_git_url "$REPO_ARG"
 
+# Get the authenticated user's handle (fork destination)
+ME=$(get_github_handle)
+
+# Define the target directory (fork lives under your account)
+TARGET_DIR="$HOME/github.com/$ME/$REPO"
+
 if [ "$DRY_RUN" = true ]; then
     echo "=== DRY RUN MODE ==="
     echo "Input: $REPO_ARG"
-    echo "Parsed org: $ORG"
-    echo "Parsed repo: $REPO"
-    echo "Target directory: $HOME/github.com/$ORG/$REPO"
+    echo "Upstream: $ORG/$REPO"
+    echo "Fork: $ME/$REPO"
+    echo "Target directory: $TARGET_DIR"
     echo ""
 fi
 
-# Validate that the remote repository exists
-if [ "$DRY_RUN" = true ]; then
-    echo "Checking if repository $ORG/$REPO exists..."
-fi
-
+# Validate that the upstream repository exists
 if ! gh repo view "$ORG/$REPO" >/dev/null 2>&1; then
     echo "Error: Repository $ORG/$REPO does not exist or is not accessible."
-    echo "Please check the repository name and your access permissions."
     exit 1
 fi
 
 if [ "$DRY_RUN" = true ]; then
-    echo "✓ Repository $ORG/$REPO exists and is accessible"
+    echo "✓ Upstream repository $ORG/$REPO exists and is accessible"
 fi
-
-# Define the target directory
-TARGET_DIR="$HOME/github.com/$ORG/$REPO"
 
 # Check if the target directory already exists
 if [ -d "$TARGET_DIR" ]; then
-    echo "The directory $TARGET_DIR already exists."
+    echo "Error: The directory $TARGET_DIR already exists."
     exit 1
 fi
 
@@ -185,23 +171,17 @@ if [ "$DRY_RUN" = true ]; then
     echo "✓ Target directory $TARGET_DIR does not exist"
     echo ""
     echo "Would execute:"
-    echo "  mkdir -p \"$TARGET_DIR\""
-    echo "  cd \"$TARGET_DIR\""
-    echo "  gh repo clone \"$ORG/$REPO\" ."
-    
-    # Show editor command that would be executed
+    echo "  gh repo fork \"$ORG/$REPO\" --clone -- \"$TARGET_DIR\""
+
     echo ""
     echo "=== DRY RUN COMPLETE ==="
     exit 0
 fi
 
-# Create the target directory
-mkdir -p "$TARGET_DIR"
-
-# Change to the target directory
-cd "$TARGET_DIR" || exit
-
-# Clone the repository using the 'gh' command
-gh repo clone "$ORG/$REPO" .
+# Fork and clone
+if ! gh repo fork "$ORG/$REPO" --clone -- "$TARGET_DIR"; then
+    echo "Error: Failed to fork repository $ORG/$REPO"
+    exit 1
+fi
 
 echo "$TARGET_DIR"

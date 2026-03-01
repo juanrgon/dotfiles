@@ -2,6 +2,7 @@
 
 # Global variables
 DRY_RUN=false
+REMOTE=false
 VISIBILITY="private"
 DESCRIPTION=""
 
@@ -33,22 +34,32 @@ while [[ $# -gt 0 ]]; do
             DRY_RUN=true
             shift
             ;;
+        -r|--remote)
+            REMOTE=true
+            shift
+            ;;
         --public)
+            REMOTE=true
             VISIBILITY="public"
             shift
             ;;
         --private)
+            REMOTE=true
             VISIBILITY="private"
             shift
             ;;
         -d|--description)
+            REMOTE=true
             DESCRIPTION="$2"
             shift 2
             ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS] <repo>"
             echo ""
-            echo "Create a new GitHub repository and clone it to ~/github.com/org/repo"
+            echo "Create a new git repository at ~/github.com/org/repo"
+            echo ""
+            echo "By default, creates a local-only repository. Use --remote to also"
+            echo "create the repository on GitHub."
             echo ""
             echo "Arguments:"
             echo "  <repo>    Repository in one of these formats:"
@@ -56,9 +67,10 @@ while [[ $# -gt 0 ]]; do
             echo "            - org/repo     (creates under the specified org)"
             echo ""
             echo "Options:"
-            echo "  --public             Create a public repository (default: private)"
-            echo "  --private            Create a private repository (default)"
-            echo "  -d, --description    Repository description"
+            echo "  -r, --remote         Also create the repository on GitHub"
+            echo "  --public             Create a public GitHub repository (implies --remote)"
+            echo "  --private            Create a private GitHub repository (implies --remote)"
+            echo "  -d, --description    Repository description (implies --remote)"
             echo "  -n, --dry-run        Show what would be done without executing"
             echo "  -h, --help           Show this help message"
             exit 0
@@ -88,8 +100,10 @@ if [ -z "$REPO_ARG" ]; then
     exit 1
 fi
 
-# Check gh CLI availability and authentication
-check_gh_cli
+# Only need gh CLI for remote creation or org lookup
+if [ "$REMOTE" = true ]; then
+    check_gh_cli
+fi
 
 # Parse org and repo from the input
 if [[ $REPO_ARG =~ / ]]; then
@@ -105,6 +119,7 @@ if [[ $REPO_ARG =~ / ]]; then
     REPO=$(echo "$REPO_ARG" | cut -d '/' -f 2)
 else
     REPO="$REPO_ARG"
+    check_gh_cli
     ORG=$(get_github_handle)
 fi
 
@@ -131,23 +146,28 @@ if [ "$DRY_RUN" = true ]; then
     echo "Input: $REPO_ARG"
     echo "Parsed org: $ORG"
     echo "Parsed repo: $REPO"
-    echo "Visibility: $VISIBILITY"
-    if [ -n "$DESCRIPTION" ]; then
-        echo "Description: $DESCRIPTION"
+    if [ "$REMOTE" = true ]; then
+        echo "Remote: yes"
+        echo "Visibility: $VISIBILITY"
+        if [ -n "$DESCRIPTION" ]; then
+            echo "Description: $DESCRIPTION"
+        fi
+    else
+        echo "Remote: no (local only)"
     fi
     echo "Target directory: $TARGET_DIR"
     echo ""
 fi
 
-# Check if the repository already exists
-if gh repo view "$ORG/$REPO" >/dev/null 2>&1; then
-    echo "Error: Repository $ORG/$REPO already exists."
+# Check if the remote repository already exists
+if [ "$REMOTE" = true ] && gh repo view "$ORG/$REPO" >/dev/null 2>&1; then
+    echo "Error: Repository $ORG/$REPO already exists on GitHub."
     echo "Use 'gitget $ORG/$REPO' to clone it instead."
     exit 1
 fi
 
-if [ "$DRY_RUN" = true ]; then
-    echo "✓ Repository $ORG/$REPO does not already exist"
+if [ "$DRY_RUN" = true ] && [ "$REMOTE" = true ]; then
+    echo "✓ Repository $ORG/$REPO does not already exist on GitHub"
 fi
 
 # Check if the target directory already exists
@@ -160,18 +180,17 @@ if [ "$DRY_RUN" = true ]; then
     echo "✓ Target directory $TARGET_DIR does not exist"
     echo ""
     echo "Would execute:"
+    echo "  mkdir -p \"$TARGET_DIR\""
+    echo "  cd \"$TARGET_DIR\""
 
-    CREATE_CMD="  gh repo create \"$ORG/$REPO\" --\"$VISIBILITY\" --clone"
-    if [ -n "$DESCRIPTION" ]; then
-        CREATE_CMD="$CREATE_CMD --description \"$DESCRIPTION\""
-    fi
-    echo "$CREATE_CMD"
-
-    if [ -n "$EDITOR" ]; then
-        EDITOR_WITHOUT_WAIT=$(echo "$EDITOR" | sed -E 's/[[:space:]]*--wait([[:space:]]+|=|$)/\1/g' | sed 's/[[:space:]]*$//')
-        if [ -n "$EDITOR_WITHOUT_WAIT" ]; then
-            echo "  $EDITOR_WITHOUT_WAIT ."
+    if [ "$REMOTE" = true ]; then
+        CREATE_CMD="  gh repo create \"$ORG/$REPO\" --\"$VISIBILITY\" --clone"
+        if [ -n "$DESCRIPTION" ]; then
+            CREATE_CMD="$CREATE_CMD --description \"$DESCRIPTION\""
         fi
+        echo "$CREATE_CMD"
+    else
+        echo "  git init"
     fi
 
     echo ""
@@ -181,27 +200,27 @@ fi
 
 # Create the target directory
 mkdir -p "$TARGET_DIR"
-
-# Create the repository and clone it
-CREATE_ARGS=("$ORG/$REPO" "--$VISIBILITY" "--clone")
-if [ -n "$DESCRIPTION" ]; then
-    CREATE_ARGS+=("--description" "$DESCRIPTION")
-fi
-
 cd "$TARGET_DIR" || exit
 
-if ! gh repo create "${CREATE_ARGS[@]}"; then
-    echo "Error: Failed to create repository $ORG/$REPO"
-    rmdir "$TARGET_DIR" 2>/dev/null
-    exit 1
-fi
-
-echo "Repository $ORG/$REPO has been created and cloned into $TARGET_DIR"
-
-# Open in editor if EDITOR is set
-if [ -n "$EDITOR" ]; then
-    EDITOR_WITHOUT_WAIT=$(echo "$EDITOR" | sed -E 's/[[:space:]]*--wait([[:space:]]+|=|$)/\1/g' | sed 's/[[:space:]]*$//')
-    if [ -n "$EDITOR_WITHOUT_WAIT" ]; then
-        eval "$EDITOR_WITHOUT_WAIT" .
+if [ "$REMOTE" = true ]; then
+    # Create the repository on GitHub and clone it
+    CREATE_ARGS=("$ORG/$REPO" "--$VISIBILITY" "--clone")
+    if [ -n "$DESCRIPTION" ]; then
+        CREATE_ARGS+=("--description" "$DESCRIPTION")
     fi
+
+    if ! gh repo create "${CREATE_ARGS[@]}"; then
+        echo "Error: Failed to create repository $ORG/$REPO"
+        rmdir "$TARGET_DIR" 2>/dev/null
+        exit 1
+    fi
+
+    echo "Repository $ORG/$REPO has been created and cloned into $TARGET_DIR"
+else
+    # Local-only: just git init
+    git init
+
+    echo "Repository created at $TARGET_DIR"
 fi
+
+echo "$TARGET_DIR"

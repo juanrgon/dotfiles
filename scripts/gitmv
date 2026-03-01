@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Global variables
+DRY_RUN=false
+ORG=""
+
+# Function to check if gh CLI is available and authenticated
+check_gh_cli() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "Error: GitHub CLI (gh) is not installed."
+        echo "Install it from: https://cli.github.com/"
+        exit 1
+    fi
+
+    if ! gh auth status >/dev/null 2>&1; then
+        echo "Error: GitHub CLI is not authenticated."
+        echo "Run 'gh auth login' to authenticate."
+        exit 1
+    fi
+}
+
+# Function to get the authenticated user's GitHub handle
+get_github_handle() {
+    gh api user --jq '.login'
+}
+
+# Parse command line arguments
+DIR_ARG=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -o|--org)
+            ORG="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS] <path>"
+            echo ""
+            echo "Move a project into ~/github.com/org/repo"
+            echo ""
+            echo "Arguments:"
+            echo "  <path>    Path to the project directory to move"
+            echo ""
+            echo "Options:"
+            echo "  -o, --org <org>    Organization/owner (default: your GitHub username)"
+            echo "  -n, --dry-run      Show what would be done without executing"
+            echo "  -h, --help         Show this help message"
+            exit 0
+            ;;
+        -*|--*)
+            echo "Unknown option $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+        *)
+            if [ -n "$DIR_ARG" ]; then
+                echo "Error: Multiple path arguments provided"
+                echo "Use --help for usage information"
+                exit 1
+            fi
+            DIR_ARG="$1"
+            shift
+            ;;
+    esac
+done
+
+# Check if a path argument is provided
+if [ -z "$DIR_ARG" ]; then
+    echo "Error: Path argument is required"
+    echo "Usage: $0 [OPTIONS] <path>"
+    echo "Use --help for more information"
+    exit 1
+fi
+
+# Resolve to absolute path
+SOURCE_DIR=$(cd "$DIR_ARG" 2>/dev/null && pwd)
+if [ -z "$SOURCE_DIR" ] || [ ! -d "$SOURCE_DIR" ]; then
+    echo "Error: '$DIR_ARG' is not a valid directory"
+    exit 1
+fi
+
+# Get the repo name from the directory name
+REPO=$(basename "$SOURCE_DIR")
+
+# Determine the org
+if [ -z "$ORG" ]; then
+    check_gh_cli
+    ORG=$(get_github_handle)
+fi
+
+# Define the target directory
+TARGET_DIR="$HOME/github.com/$ORG/$REPO"
+
+# Check if source is already in the right place
+if [ "$SOURCE_DIR" = "$TARGET_DIR" ]; then
+    echo "Error: '$SOURCE_DIR' is already at the target location"
+    exit 1
+fi
+
+if [ "$DRY_RUN" = true ]; then
+    echo "=== DRY RUN MODE ==="
+    echo "Source: $SOURCE_DIR"
+    echo "Target: $TARGET_DIR"
+    echo ""
+fi
+
+# Check if the target directory already exists
+if [ -d "$TARGET_DIR" ]; then
+    echo "Error: The directory $TARGET_DIR already exists."
+    exit 1
+fi
+
+if [ "$DRY_RUN" = true ]; then
+    echo "✓ Target directory $TARGET_DIR does not exist"
+    echo ""
+    echo "Would execute:"
+    echo "  mkdir -p \"$(dirname "$TARGET_DIR")\""
+    echo "  mv \"$SOURCE_DIR\" \"$TARGET_DIR\""
+    echo ""
+    echo "=== DRY RUN COMPLETE ==="
+    exit 0
+fi
+
+# Create parent directory and move
+mkdir -p "$(dirname "$TARGET_DIR")"
+mv "$SOURCE_DIR" "$TARGET_DIR"
+
+echo "$TARGET_DIR"

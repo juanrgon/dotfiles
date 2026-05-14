@@ -118,13 +118,6 @@ end
 
 set --export LESS "-RS#3NM~g"
 
-#########################
-# ASDF configuration code
-#########################
-if test -d "$HOME/.asdf/shims"
-    set --export PATH "$HOME/.asdf/shims" $PATH
-end
-
 ##########
 # Go setup
 ##########

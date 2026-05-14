@@ -251,24 +251,6 @@ main() {
         curl https://pyenv.run | bash
     fi
 
-    ##############
-    # Install asdf
-    ##############
-    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
-        install_asdf
-    else
-        log "asdf installation skipped"
-    fi
-
-    ############
-    # Install Go
-    ############
-    if [[ -z "${SKIP_PACKAGES:-}" ]]; then
-        install_go
-    else
-        log "Go installation skipped"
-    fi
-
     ############################
     # Add git-hooks to this repo
     ############################
@@ -632,47 +614,6 @@ function install_homebrew() {
 
     if os_is_linux; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    fi
-}
-
-function install_asdf() {
-    if ! command -v asdf &> /dev/null; then
-        log "Installing asdf..."
-        if os_is_macos; then
-            brew install asdf
-        elif os_is_linux; then
-            # TODO: need to install asdf on Linux
-            echo "⚠️ Skipping asdf installation on Linux"
-        fi
-    fi
-}
-
-function install_go() {
-    # TODO: refactor this to not install with asdf
-    # if ! command -v go &> /dev/null; then
-    #     log "Installing Go..."
-    #     if ! command -v asdf &> /dev/null; then
-    #         log "asdf required to install go"
-    #         return
-    #     fi
-
-    #     asdf plugin add golang https://github.com/asdf-community/asdf-golang.git
-    #     asdf install -u golang latest
-    # fi
-
-    if ! command -v golangci-lint &> /dev/null; then
-        log "installing golangci-lint..."
-        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.4.0
-    fi
-
-    if ! command -v dlv &> /dev/null; then
-        log "Installing delve..."
-        go install github.com/go-delve/delve/cmd/dlv@latest
-    fi
-
-    if ! command -v gopls &> /dev/null; then
-        log "Installing gopls..."
-        go install golang.org/x/tools/gopls@latest
     fi
 }
 

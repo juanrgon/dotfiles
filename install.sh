@@ -84,7 +84,6 @@ main() {
     # They're like aliases, but they generate bash scripts, so they're shell agnostic
     #################################################################################
     log "Adding shortcuts..."
-    shortcut copilot    'gh copilot suggest'
     shortcut d           docker
     shortcut dc          docker compose
     shortcut dcb         docker compose build

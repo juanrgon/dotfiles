@@ -147,6 +147,7 @@ main() {
         install_rust
         install_onepassword_cli
         install_awscli
+        install_jq
     else
         log "Extra OS packages installation skipped"
     fi
@@ -539,6 +540,12 @@ function install_git_segment() {
 function install_awscli() {
     if os_is_macos; then
         brew install awscli
+    fi
+}
+
+function install_jq() {
+    if os_is_macos; then
+        brew install jq
     fi
 }
 

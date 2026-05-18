@@ -8,6 +8,9 @@ export GITHUB_HANDLE="juanrgon"
 # destination for my personal scripts
 export PERSONAL_SCRIPTS_DIR="$HOME/bin/$GITHUB_HANDLE"
 
+# destination for user-local executables
+export LOCAL_BIN="$HOME/.local/bin"
+
 # destination for my shortcuts
 export SHORTCUTS_BIN="$HOME/shortcut/bin"
 
@@ -74,9 +77,9 @@ main() {
     # Make personal scripts files executable
     chmod +x $PERSONAL_SCRIPTS_DIR/*;
 
-    # Add personal scripts and shortcuts bin directories to $PATH
-    export PATH="$PERSONAL_SCRIPTS_DIR:$PATH"
-    export SHORTCUT_BIN="$SHORTCUTS_BIN:$PATH"
+    # Add user-local executables, personal scripts, and shortcuts bin directories to $PATH
+    mkdir -p "$LOCAL_BIN"
+    export PATH="$SHORTCUTS_BIN:$PERSONAL_SCRIPTS_DIR:$LOCAL_BIN:$PATH"
 
     #################################################################################
     # Add shortcuts

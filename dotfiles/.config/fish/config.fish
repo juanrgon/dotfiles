@@ -10,6 +10,14 @@
 
 export GITHUB_HANDLE="juanrgon"  # My GitHub handle
 
+##################################
+# Add user-local bin to the PATH
+##################################
+set --export LOCAL_BIN $HOME/.local/bin
+if test -d $LOCAL_BIN
+    set --export fish_user_paths $LOCAL_BIN $fish_user_paths
+end
+
 #####################################
 # Add my personal scripts to the PATH
 #####################################

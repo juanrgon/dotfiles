@@ -390,8 +390,15 @@ function set_macos_settings() {
 
     log "Changing MacOS settings..."
 
+    # Map Caps Lock to Escape for the current login session
+    hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
+
     # Allow key repeat to work in all apps
     defaults write -g ApplePressAndHoldEnabled -bool false
+
+    # Use fast key repeat with a short delay
+    defaults write NSGlobalDomain KeyRepeat -int 2
+    defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
     # Change the default photo save location to ~/Downloads
     defaults write com.apple.screencapture location -string "${HOME}/Downloads"

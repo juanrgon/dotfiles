@@ -92,7 +92,7 @@ fi
 
 # Add function to change directory using j.sh script
 j() {
-    target=$("$HOME/github.com/$GITHUB_HANDLE/dotfiles/dotfiles/.config/fish/functions/j.sh" "$@")
+    target=$("j-search" "$@")
     if [[ -d "$target" ]]; then
         cd "$target"
     else

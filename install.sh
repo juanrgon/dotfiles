@@ -81,6 +81,12 @@ main() {
     mkdir -p "$LOCAL_BIN"
     export PATH="$SHORTCUTS_BIN:$PERSONAL_SCRIPTS_DIR:$LOCAL_BIN:$PATH"
 
+    ####################
+    # Install agentsmd
+    ####################
+    log "Installing agentsmd..."
+    curl -fsSL https://raw.githubusercontent.com/juanrgon/agentsmd/main/install.sh | bash
+
     #################################################################################
     # Add shortcuts
     #

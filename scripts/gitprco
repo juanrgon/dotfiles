@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: gitprco [OPTIONS] <pull-request>
+
+Check out a GitHub pull request in a dedicated worktree at:
+  ~/worktrees/github.com/<org>/<repo>/<branch-name>
+
+Arguments:
+  <pull-request>    Pull request URL or other value accepted by gh pr view
+
+Options:
+  -n, --dry-run    Show the resolved paths and commands without changing anything
+  -h, --help       Show this help message
+EOF
+}
+
+DRY_RUN=false
+PR_ARG=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            printf 'Error: Unknown option %s\n' "$1" >&2
+            printf 'Use --help for usage information\n' >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$PR_ARG" ]]; then
+                printf 'Error: Multiple pull requests provided\n' >&2
+                printf 'Use --help for usage information\n' >&2
+                exit 1
+            fi
+            PR_ARG="$1"
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$PR_ARG" ]]; then
+    printf 'Error: Pull request is required\n' >&2
+    usage >&2
+    exit 1
+fi
+
+for command_name in gh git; do
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        printf 'Error: %s is not installed or not on PATH\n' "$command_name" >&2
+        exit 1
+    fi
+done
+
+if ! PR_DATA=$(gh pr view "$PR_ARG" \
+    --json number,url,headRefName \
+    --jq '[.number, .url, .headRefName] | @tsv'); then
+    printf 'Error: Could not read pull request %s\n' "$PR_ARG" >&2
+    exit 1
+fi
+
+IFS=$'\t' read -r PR_NUMBER PR_URL BRANCH_NAME <<< "$PR_DATA"
+
+if [[ -z "$PR_NUMBER" || -z "$PR_URL" || -z "$BRANCH_NAME" ]]; then
+    printf 'Error: Pull request metadata is incomplete\n' >&2
+    exit 1
+fi
+
+if [[ "$PR_URL" =~ ^https?://([^/]+)/([^/]+)/([^/]+)/pull/([0-9]+)/?$ ]]; then
+    HOST="${BASH_REMATCH[1]}"
+    ORG="${BASH_REMATCH[2]}"
+    REPO="${BASH_REMATCH[3]}"
+    URL_PR_NUMBER="${BASH_REMATCH[4]}"
+else
+    printf 'Error: Unsupported pull request URL: %s\n' "$PR_URL" >&2
+    exit 1
+fi
+
+if [[ "$PR_NUMBER" != "$URL_PR_NUMBER" ]]; then
+    printf 'Error: Pull request metadata does not match URL: %s\n' "$PR_URL" >&2
+    exit 1
+fi
+
+if ! git check-ref-format --branch "$BRANCH_NAME" >/dev/null 2>&1; then
+    printf 'Error: Pull request branch is not a valid Git branch: %s\n' "$BRANCH_NAME" >&2
+    exit 1
+fi
+
+REPO_DIR="$HOME/github.com/$ORG/$REPO"
+TARGET_DIR="$HOME/worktrees/$HOST/$ORG/$REPO/$BRANCH_NAME"
+PR_REF="refs/remotes/origin/pull/$PR_NUMBER"
+REPO_SLUG="$ORG/$REPO"
+
+if [[ "$HOST" != "github.com" ]]; then
+    REPO_SLUG="$HOST/$REPO_SLUG"
+fi
+
+worktree_for_branch() {
+    local current_worktree=""
+    local line
+
+    while IFS= read -r line; do
+        case "$line" in
+            "worktree "*)
+                current_worktree="${line#worktree }"
+                ;;
+            "branch refs/heads/$BRANCH_NAME")
+                printf '%s\n' "$current_worktree"
+                return 0
+                ;;
+        esac
+    done < <(git -C "$REPO_DIR" worktree list --porcelain)
+
+    return 1
+}
+
+if [[ "$DRY_RUN" == true ]]; then
+    printf 'Pull request: %s\n' "$PR_URL"
+    printf 'Repository:   %s\n' "$REPO_DIR"
+    printf 'Branch:       %s\n' "$BRANCH_NAME"
+    printf 'Worktree:     %s\n' "$TARGET_DIR"
+    printf '\nWould execute:\n'
+
+    if [[ ! -e "$REPO_DIR" ]]; then
+        printf '  gh repo clone "%s" "%s"\n' "$REPO_SLUG" "$REPO_DIR"
+    fi
+
+    printf '  git -C "%s" fetch origin "+refs/pull/%s/head:%s"\n' \
+        "$REPO_DIR" "$PR_NUMBER" "$PR_REF"
+    printf '  git -C "%s" worktree add -b "%s" "%s" "%s"\n' \
+        "$REPO_DIR" "$BRANCH_NAME" "$TARGET_DIR" "$PR_REF"
+    exit 0
+fi
+
+if [[ ! -e "$REPO_DIR" ]]; then
+    mkdir -p "$(dirname "$REPO_DIR")"
+    gh repo clone "$REPO_SLUG" "$REPO_DIR" >&2
+fi
+
+if ! git -C "$REPO_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    printf 'Error: Repository path is not a Git repository: %s\n' "$REPO_DIR" >&2
+    exit 1
+fi
+
+if [[ -e "$TARGET_DIR" ]]; then
+    EXISTING_WORKTREE=$(worktree_for_branch || true)
+    if [[ "$EXISTING_WORKTREE" == "$TARGET_DIR" ]]; then
+        printf '%s\n' "$TARGET_DIR"
+        exit 0
+    fi
+
+    printf 'Error: Worktree path already exists: %s\n' "$TARGET_DIR" >&2
+    exit 1
+fi
+
+git -C "$REPO_DIR" fetch origin \
+    "+refs/pull/$PR_NUMBER/head:$PR_REF" >&2
+
+PR_COMMIT=$(git -C "$REPO_DIR" rev-parse "$PR_REF^{commit}")
+
+if git -C "$REPO_DIR" show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+    EXISTING_WORKTREE=$(worktree_for_branch || true)
+    if [[ -n "$EXISTING_WORKTREE" ]]; then
+        printf 'Error: Branch %s is already checked out at %s\n' \
+            "$BRANCH_NAME" "$EXISTING_WORKTREE" >&2
+        exit 1
+    fi
+
+    BRANCH_COMMIT=$(git -C "$REPO_DIR" rev-parse "refs/heads/$BRANCH_NAME^{commit}")
+    if [[ "$BRANCH_COMMIT" != "$PR_COMMIT" ]]; then
+        if git -C "$REPO_DIR" merge-base --is-ancestor "$BRANCH_COMMIT" "$PR_COMMIT"; then
+            git -C "$REPO_DIR" branch -f "$BRANCH_NAME" "$PR_REF" >&2
+        else
+            printf 'Error: Local branch %s has diverged from pull request %s\n' \
+                "$BRANCH_NAME" "$PR_URL" >&2
+            printf 'Refusing to move the local branch\n' >&2
+            exit 1
+        fi
+    fi
+
+    mkdir -p "$(dirname "$TARGET_DIR")"
+    git -C "$REPO_DIR" worktree add "$TARGET_DIR" "$BRANCH_NAME" >&2
+else
+    mkdir -p "$(dirname "$TARGET_DIR")"
+    git -C "$REPO_DIR" worktree add -b "$BRANCH_NAME" \
+        "$TARGET_DIR" "$PR_REF" >&2
+fi
+
+printf '%s\n' "$TARGET_DIR"

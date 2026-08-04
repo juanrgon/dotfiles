@@ -5,14 +5,6 @@
 export GITHUB_HANDLE="juanrgon"
 
 ##################################
-# Add user-local bin to the PATH
-##################################
-export LOCAL_BIN="$HOME/.local/bin"
-if [[ -d "$LOCAL_BIN" ]]; then
-    export PATH="$LOCAL_BIN:$PATH"
-fi
-
-##################################
 # Add personal scripts to the PATH
 ##################################
 export PERSONAL_SCRIPTS_DIR="$HOME/bin/$GITHUB_HANDLE"
@@ -41,6 +33,14 @@ case $(uname) in
         fi
         ;;
 esac
+
+##################################
+# Add user-local bin to the PATH
+##################################
+export LOCAL_BIN="$HOME/.local/bin"
+if [[ -d "$LOCAL_BIN" ]]; then
+    export PATH="$LOCAL_BIN:$PATH"
+fi
 
 #################################
 # Add Cargo's bin dir to the PATH

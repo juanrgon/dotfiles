@@ -41,19 +41,19 @@ switch (uname)
         end
 end
 
+#################################
+# Add Cargo's bin dir to the PATH
+#################################
+if test -d $HOME/.cargo/bin
+    set --export fish_user_paths $HOME/.cargo/bin $fish_user_paths  # add personal scripts dir to the PATH
+end
+
 ##################################
 # Add user-local bin to the PATH
 ##################################
 set --export LOCAL_BIN $HOME/.local/bin
 if test -d $LOCAL_BIN
     set --export fish_user_paths $LOCAL_BIN $fish_user_paths
-end
-
-#################################
-# Add Cargo's bin dir to the PATH
-#################################
-if test -d $HOME/.cargo/bin
-    set --export fish_user_paths $HOME/.cargo/bin $fish_user_paths  # add personal scripts dir to the PATH
 end
 
 #######################################

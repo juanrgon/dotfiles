@@ -34,19 +34,19 @@ case $(uname) in
         ;;
 esac
 
+#################################
+# Add Cargo's bin dir to the PATH
+#################################
+if [[ -d "$HOME/.cargo/bin" ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"  # add personal scripts dir to the PATH
+fi
+
 ##################################
 # Add user-local bin to the PATH
 ##################################
 export LOCAL_BIN="$HOME/.local/bin"
 if [[ -d "$LOCAL_BIN" ]]; then
     export PATH="$LOCAL_BIN:$PATH"
-fi
-
-#################################
-# Add Cargo's bin dir to the PATH
-#################################
-if [[ -d "$HOME/.cargo/bin" ]]; then
-    export PATH="$HOME/.cargo/bin:$PATH"  # add personal scripts dir to the PATH
 fi
 
 #######################################

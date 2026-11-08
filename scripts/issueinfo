@@ -161,9 +161,10 @@ fi
 
 # Output the result
 echo "Preparing output..." >&2
-if [[ "$OSTYPE" == "darwin"* ]] && [ "$echo_flag" = false ]; then
-    # On macOS and no --echo flag, copy to clipboard
-    echo -e "$output" | pbcopy
+copy_cmd=$(clipboard_command)
+if [ -n "$copy_cmd" ] && [ "$echo_flag" = false ]; then
+    # A clipboard tool is available and no --echo flag, so copy to clipboard
+    echo -e "$output" | $copy_cmd
     echo "Issue information copied to clipboard"
 else
     # Echo to stdout

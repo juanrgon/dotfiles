@@ -144,3 +144,11 @@ if test "$PROMPT_THEME" != "default" -a "$PROMPT_THEME" != "tide"
         starship init fish | source
     end
 end
+
+###########
+# mise init
+###########
+# Must stay after every PATH change above: mise resets PATH to what it sees here
+if type -q mise
+    mise activate fish | source
+end

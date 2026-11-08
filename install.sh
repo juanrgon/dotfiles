@@ -57,7 +57,7 @@ main() {
     ###########################################
     # Install homebrew if not already installed
     #
-    # NOTE: requires git and curl on linux
+    # NOTE: macOS only
     ###########################################
     install_homebrew
 
@@ -65,7 +65,11 @@ main() {
     # Sync dotfiles
     ##############
     log "Syncing dotfiles..."
-    rsync --recursive $THIS_DIR/dotfiles/ $HOME/  # WARNING: Never --delete here, or you'll delete your home directory
+    move_aside_foreign_nvim_config
+
+    # Keep a copy of any file we replace, so existing configs aren't lost.
+    # --checksum skips files whose content already matches, so reruns don't make new backups.
+    rsync --recursive --checksum --backup --suffix=.pre-dotfiles $THIS_DIR/dotfiles/ $HOME/  # WARNING: Never --delete here, or you'll delete your home directory
 
     ################################################
     # Copy personal scripts to $PERSONAL_SCRIPTS_DIR
@@ -114,18 +118,6 @@ main() {
     shortcut gs          git status
     shortcut gup         'git push origin $(git_branch_name)'
 
-    if os_is_linux; then
-        if command -v fdfind &> /dev/null; then
-            log "Fixing fd for ubuntu..."
-            shortcut fd fdfind
-        fi
-
-        if command -v batcat &> /dev/null; then
-            log "Fixing bat for ubuntu..."
-            shortcut bat batcat
-        fi
-    fi
-
     ##################
     # Setup git config
     ##################
@@ -156,6 +148,7 @@ main() {
         install_onepassword_cli
         install_awscli
         install_jq
+        install_go
     else
         log "Extra OS packages installation skipped"
     fi
@@ -196,10 +189,23 @@ main() {
     # Create shortcuts for rust alternatives to standard POSIX commands
     ###################################################################
     log "Adding rust cli alternative shortcuts..."
-    if [ -x exa ]; then
-        shortcut l      exa
-        shortcut ll     exa --long --icons --group-directories-first --all
-        shortcut lt     exa --tree
+
+    # Ubuntu renames these binaries. Runs after package installs so the binaries exist.
+    if os_is_apt; then
+        if command -v fdfind &> /dev/null; then
+            log "Fixing fd for ubuntu..."
+            shortcut fd fdfind
+        fi
+
+        if command -v batcat &> /dev/null && ! command -v bat &> /dev/null; then
+            log "Fixing bat for ubuntu..."
+            shortcut bat batcat
+        fi
+    fi
+    if command -v eza &> /dev/null; then
+        shortcut l      eza
+        shortcut ll     eza --long --icons --group-directories-first --all
+        shortcut lt     eza --tree
     fi
 
     #####################################
@@ -263,10 +269,15 @@ main() {
     ############################
     # Add git-hooks to this repo
     ############################
-    chmod +x $THIS_DIR/git-hooks/*
-    rm -rf $THIS_DIR/.git/hooks/*
-    mkdir -p $THIS_DIR/.git/hooks/
-    cp $THIS_DIR/git-hooks/* $THIS_DIR/.git/hooks/
+    # Ask git for the hooks dir, since .git is a file in a worktree
+    if HOOKS_DIR=$(git -C "$THIS_DIR" rev-parse --path-format=absolute --git-path hooks 2> /dev/null); then
+        chmod +x $THIS_DIR/git-hooks/*
+        rm -rf "$HOOKS_DIR"/*
+        mkdir -p "$HOOKS_DIR"
+        cp $THIS_DIR/git-hooks/* "$HOOKS_DIR"/
+    else
+        log "Not a git checkout, skipping git hooks"
+    fi
 
     #######################
     # Change MacOS settings
@@ -286,16 +297,14 @@ install_packages() {
         PKGS="$PKGS $(package_name $pkg)"
     done
 
-    if os_is_linux; then
-        if user_is_root; then
-            apt-get update
-        else
-            sudo apt-get update
-        fi
-        PKGS="$PKGS build-essential"
-    elif os_is_macos; then
+    if os_is_macos; then
         # Make sure we have brew installed
         install_homebrew
+    elif os_is_apt; then
+        as_root apt-get update
+        PKGS="$PKGS build-essential"
+    elif os_is_pacman; then
+        PKGS="$PKGS base-devel"
     else
         log "FAILED TO INSTALL PACKAGES"
         log "OS not supported 😔: $OSTYPE"
@@ -304,41 +313,75 @@ install_packages() {
 
     log installing $PKGS
 
-    if os_is_linux; then
-        if user_is_root; then
-            apt-get install -y $PKGS
-        else
-            sudo apt-get install -y $PKGS
-        fi
-    elif os_is_macos; then
-        # Make sure we have brew installed
+    if os_is_macos; then
         brew install --quiet --formula $PKGS
-    else
-        error "OS not supported 😔: $OSTYPE"
+    elif os_is_apt; then
+        as_root apt-get install -y $PKGS
+    elif os_is_pacman; then
+        # Arch doesn't support partial upgrades, so sync and upgrade before installing
+        as_root pacman -Syu --needed --noconfirm $PKGS
     fi
 }
 
-# Return the proper package name for the current OS
+# Return the proper package name for the current OS.
+# An empty result means the package isn't needed on this OS.
 package_name() {
     case $1 in
         fd)
-            if os_is_linux; then
+            if os_is_apt; then
                 echo "fd-find"
-            elif os_is_macos; then
+            else
                 echo "fd"
             fi
             ;;
         cargo)
-            if os_is_linux; then
-                echo "cargo"
-            elif os_is_macos; then
+            if os_is_macos; then
                 echo "rust"
+            else
+                echo "cargo"
+            fi
+            ;;
+        gh)
+            if os_is_pacman; then
+                echo "github-cli"
+            else
+                echo "gh"
+            fi
+            ;;
+        go)
+            if os_is_apt; then
+                echo "golang-go"
+            else
+                echo "go"
+            fi
+            ;;
+        tldr)
+            # tealdeer provides the tldr command; Ubuntu and Arch don't ship a "tldr" package
+            if os_is_linux; then
+                echo "tealdeer"
+            else
+                echo "tldr"
+            fi
+            ;;
+        libssl-dev)
+            # Arch's openssl package already includes the headers
+            if os_is_apt; then
+                echo "libssl-dev"
             fi
             ;;
         *)
             echo $1
             ;;
     esac
+}
+
+# Run a command as root, using sudo only when we aren't root already
+as_root() {
+    if user_is_root; then
+        "$@"
+    else
+        sudo "$@"
+    fi
 }
 
 os_is_linux() {
@@ -358,6 +401,18 @@ os_is_macos() {
     fi
 }
 export -f os_is_macos
+
+# Debian, Ubuntu, and other distros that use apt
+os_is_apt() {
+    os_is_linux && command -v apt-get &> /dev/null
+}
+export -f os_is_apt
+
+# Arch and other distros that use pacman
+os_is_pacman() {
+    os_is_linux && command -v pacman &> /dev/null
+}
+export -f os_is_pacman
 
 user_is_root() {
     if (( $EUID == 0 )); then
@@ -388,6 +443,20 @@ install_git_config() {
     fi
 }
 export -f install_git_config
+
+# Copying my nvim config on top of a different one would mix the two and break nvim,
+# so move any nvim config that isn't mine out of the way first.
+function move_aside_foreign_nvim_config() {
+    local nvim_dir="$HOME/.config/nvim"
+
+    if [[ ! -d "$nvim_dir" ]] || [[ -f "$nvim_dir/lua/config/lazy.lua" ]]; then
+        return
+    fi
+
+    local backup_dir="$nvim_dir.pre-dotfiles-$(date +%Y%m%d%H%M%S)"
+    log "Moving existing nvim config to $backup_dir"
+    mv "$nvim_dir" "$backup_dir"
+}
 
 function set_macos_settings() {
     if ! os_is_macos; then
@@ -442,20 +511,19 @@ function install_onepassword_cli() {
     if os_is_macos; then
         brew install --cask 1password/tap/1password-cli
         shortcut opaws 'op plugin run -- aws'
+    else
+        log "Skipping 1Password CLI: install it from https://developer.1password.com/docs/cli/get-started/"
     fi
 }
 
 function setup_gh() {
-    # TODO: Support other OSes
-    if ! os_is_macos; then
-        return
+    log "Setting up gh cli..."
+    if ! command -v gh &> /dev/null; then
+        install_packages gh
     fi
 
-    log "Setting up gh cli..."
-    brew install gh
-
-    # Login to gh if not already logged in
-    if ! gh auth status &> /dev/null; then
+    # Login to gh if not already logged in. Only prompt when someone is at the keyboard.
+    if [[ -t 0 ]] && ! gh auth status &> /dev/null; then
         log "Logging into gh cli..."
         gh auth login
     fi
@@ -555,13 +623,25 @@ function install_git_segment() {
 function install_awscli() {
     if os_is_macos; then
         brew install awscli
+    elif os_is_pacman; then
+        install_packages aws-cli-v2
+    else
+        log "Skipping AWS CLI: install it from https://aws.amazon.com/cli/"
     fi
 }
 
 function install_jq() {
-    if os_is_macos; then
-        brew install jq
+    install_packages jq
+}
+
+# Go builds the prompt helpers in tools/, so install it when it's missing
+function install_go() {
+    if command -v go &> /dev/null; then
+        return
     fi
+
+    log "Installing go..."
+    install_packages go
 }
 
 function install_node() {
@@ -627,15 +707,16 @@ function install_ruby() {
     fi
 }
 
+# Homebrew is only used on macOS. Linux installs packages with its own package manager.
 function install_homebrew() {
+    if ! os_is_macos; then
+        return
+    fi
+
     if ! command -v brew &> /dev/null; then
         log "Installing Homebrew..."
         echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         export PATH="/opt/homebrew/sbin:/opt/homebrew/bin:$PATH"
-    fi
-
-    if os_is_linux; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 }
 

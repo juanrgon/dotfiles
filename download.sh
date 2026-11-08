@@ -29,29 +29,24 @@ install_git() {
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
         brew install git
-    elif [[ -f /etc/os-release ]]; then
+    elif [[ "$OSTYPE" == "linux"* ]]; then
         if (( $EUID == 0 )); then
             SUDO=""
         else
             SUDO="sudo"
         fi
 
-        DISTRO=$(cat /etc/os-release | grep ID_LIKE |  cut -d "=" -f 2 | tr -d '"' | cut -d " " -f 1)
-
-        case $DISTRO in
-            debian)
-                $SUDO apt update && $SUDO apt install -y git
-                ;;
-            centos|redhat)
-                $SUDO yum install -y git
-                ;;
-            arch)
-                $SUDO pacman -Sy --noconfirm git
-                ;;
-            *)
-                echo "Please install git manually, then try again"
-                exit 1
-        esac
+        # Pick by package manager. Plain Debian and Arch have no ID_LIKE in /etc/os-release.
+        if command -v apt-get > /dev/null; then
+            $SUDO apt-get update && $SUDO apt-get install -y git
+        elif command -v pacman > /dev/null; then
+            $SUDO pacman -Syu --needed --noconfirm git
+        elif command -v yum > /dev/null; then
+            $SUDO yum install -y git
+        else
+            echo "Please install git manually, then try again"
+            exit 1
+        fi
     else
         echo "Please install git manually, then try again"
         exit 1

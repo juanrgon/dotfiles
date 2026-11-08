@@ -356,7 +356,12 @@ package_name() {
             fi
             ;;
         tldr)
-            # tealdeer provides the tldr command; Ubuntu and Arch don't ship a "tldr" package
+            # Keep any existing client: a preinstalled "tldr" package conflicts with tealdeer
+            if command -v tldr >/dev/null; then
+                return 0
+            fi
+
+            # tealdeer provides the tldr command on Linux
             if os_is_linux; then
                 echo "tealdeer"
             else

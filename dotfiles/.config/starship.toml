@@ -2,7 +2,7 @@
 # https://starship.rs/config/
 
 format = """
-╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}$git_state  ${custom.dotfiles} 
+╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}${custom.directory_end}$git_state  ${custom.dotfiles} 
 ╰─ """
 
 # Disable slow/unwanted modules
@@ -64,6 +64,12 @@ command = "git-segment"
 when = "git rev-parse --git-dir 2>/dev/null"
 ignore_timeout = true
 format = "$output"
+
+# Closes the directory segment when git-segment prints nothing (no repo, detached HEAD)
+[custom.directory_end]
+when = '[ -z "$(git branch --show-current 2>/dev/null)" ]'
+shell = ["sh"]
+format = "[](fg:blue)"
 
 # Dotfiles sync status indicator
 [custom.dotfiles]

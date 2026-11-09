@@ -65,9 +65,9 @@ when = "git rev-parse --git-dir 2>/dev/null"
 ignore_timeout = true
 format = "$output"
 
-# Closes the directory segment when git-segment prints nothing (no repo, detached HEAD)
+# Closes the directory segment when git-segment prints nothing (no repo, detached HEAD, not installed)
 [custom.directory_end]
-when = '[ -z "$(git branch --show-current 2>/dev/null)" ]'
+when = '! { command -v git-segment >/dev/null 2>&1 && [ -n "$(git branch --show-current 2>/dev/null)" ]; }'
 shell = ["sh"]
 format = "[](fg:blue)"
 

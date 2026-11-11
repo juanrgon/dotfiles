@@ -180,16 +180,18 @@ if [ "$DRY_RUN" = true ]; then
     echo "✓ Target directory $TARGET_DIR does not exist"
     echo ""
     echo "Would execute:"
-    echo "  mkdir -p \"$TARGET_DIR\""
-    echo "  cd \"$TARGET_DIR\""
 
     if [ "$REMOTE" = true ]; then
+        echo "  mkdir -p \"$(dirname "$TARGET_DIR")\""
+        echo "  cd \"$(dirname "$TARGET_DIR")\""
         CREATE_CMD="  gh repo create \"$ORG/$REPO\" --\"$VISIBILITY\" --clone"
         if [ -n "$DESCRIPTION" ]; then
             CREATE_CMD="$CREATE_CMD --description \"$DESCRIPTION\""
         fi
         echo "$CREATE_CMD"
     else
+        echo "  mkdir -p \"$TARGET_DIR\""
+        echo "  cd \"$TARGET_DIR\""
         echo "  git init"
     fi
 
@@ -198,12 +200,11 @@ if [ "$DRY_RUN" = true ]; then
     exit 0
 fi
 
-# Create the target directory
-mkdir -p "$TARGET_DIR"
-cd "$TARGET_DIR" || exit
-
 if [ "$REMOTE" = true ]; then
-    # Create the repository on GitHub and clone it
+    # Create the repository on GitHub and clone it. gh clones into a
+    # subdirectory named after the repo, so run it from the parent directory.
+    mkdir -p "$(dirname "$TARGET_DIR")"
+    cd "$(dirname "$TARGET_DIR")" || exit
     CREATE_ARGS=("$ORG/$REPO" "--$VISIBILITY" "--clone")
     if [ -n "$DESCRIPTION" ]; then
         CREATE_ARGS+=("--description" "$DESCRIPTION")
@@ -211,13 +212,14 @@ if [ "$REMOTE" = true ]; then
 
     if ! gh repo create "${CREATE_ARGS[@]}"; then
         echo "Error: Failed to create repository $ORG/$REPO"
-        rmdir "$TARGET_DIR" 2>/dev/null
         exit 1
     fi
 
     echo "Repository $ORG/$REPO has been created and cloned into $TARGET_DIR"
 else
     # Local-only: just git init
+    mkdir -p "$TARGET_DIR"
+    cd "$TARGET_DIR" || exit
     git init
 
     echo "Repository created at $TARGET_DIR"

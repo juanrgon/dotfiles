@@ -1,0 +1,305 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: gitsweep [OPTIONS] [<repo-dir>]
+
+List the worktrees of a repository that are safe to remove. Nothing is removed
+unless --apply is given.
+
+A worktree is safe to remove when all of these are true:
+  - It is not the main worktree or the worktree you are standing in
+  - It is not locked
+  - It has no uncommitted or untracked changes
+  - It has had no Git activity for --min-age days
+  - Its HEAD is already in the default branch on origin, or is the head of a
+    merged pull request
+
+Arguments:
+  <repo-dir>         Any directory inside the repository (default: current directory)
+
+Options:
+      --apply            Remove the listed worktrees and their local branches
+      --min-age <days>   Keep worktrees with Git activity in the last N days (default: 7)
+      --keep-branches    With --apply, keep the local branches
+  -v, --verbose          Also list the worktrees that are kept, with the reason
+  -h, --help             Show this help message
+EOF
+}
+
+APPLY=false
+KEEP_BRANCHES=false
+VERBOSE=false
+MIN_AGE_DAYS=7
+REPO_ARG=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --apply)
+            APPLY=true
+            shift
+            ;;
+        --min-age)
+            if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
+                printf 'Error: --min-age needs a whole number of days\n' >&2
+                exit 1
+            fi
+            MIN_AGE_DAYS="$2"
+            shift 2
+            ;;
+        --keep-branches)
+            KEEP_BRANCHES=true
+            shift
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            printf 'Error: Unknown option %s\n' "$1" >&2
+            printf 'Use --help for usage information\n' >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$REPO_ARG" ]]; then
+                printf 'Error: Multiple repositories provided\n' >&2
+                printf 'Use --help for usage information\n' >&2
+                exit 1
+            fi
+            REPO_ARG="$1"
+            shift
+            ;;
+    esac
+done
+
+REPO_ARG="${REPO_ARG:-.}"
+
+if ! command -v git >/dev/null 2>&1; then
+    printf 'Error: git is not installed or not on PATH\n' >&2
+    exit 1
+fi
+
+if ! git -C "$REPO_ARG" rev-parse --git-dir >/dev/null 2>&1; then
+    printf 'Error: Not a Git repository: %s\n' "$REPO_ARG" >&2
+    exit 1
+fi
+
+# The first entry of the worktree list is always the main worktree.
+IFS= read -r MAIN_DIR < <(git -C "$REPO_ARG" worktree list --porcelain)
+MAIN_DIR="${MAIN_DIR#worktree }"
+CURRENT_DIR=$(git rev-parse --show-toplevel 2>/dev/null || true)
+
+if ! git -C "$MAIN_DIR" fetch --prune --quiet origin; then
+    printf 'Warning: Could not fetch origin. Using the last known state.\n' >&2
+fi
+
+DEFAULT_REF=$(git -C "$MAIN_DIR" symbolic-ref --quiet --short refs/remotes/origin/HEAD || true)
+if [[ -z "$DEFAULT_REF" ]]; then
+    for candidate in origin/main origin/master; do
+        if git -C "$MAIN_DIR" show-ref --verify --quiet "refs/remotes/$candidate"; then
+            DEFAULT_REF="$candidate"
+            break
+        fi
+    done
+fi
+
+if [[ -z "$DEFAULT_REF" ]]; then
+    printf 'Error: Could not find the default branch on origin\n' >&2
+    exit 1
+fi
+
+# Squash merges leave the branch commits out of the default branch, so also
+# accept a HEAD that is the exact head of a merged pull request.
+MERGED_HEADS=$(mktemp)
+trap 'rm -f "$MERGED_HEADS"' EXIT
+
+if command -v gh >/dev/null 2>&1; then
+    if ! (cd "$MAIN_DIR" && gh pr list --state merged --limit 5000 \
+        --json headRefOid --jq '.[].headRefOid') > "$MERGED_HEADS" 2>/dev/null; then
+        printf 'Warning: Could not list merged pull requests. Squash-merged work will be kept.\n' >&2
+        : > "$MERGED_HEADS"
+    fi
+else
+    printf 'Warning: gh is not installed. Squash-merged work will be kept.\n' >&2
+fi
+
+if stat --version >/dev/null 2>&1; then
+    mtime() { stat -c %Y "$1" 2>/dev/null || true; }
+else
+    mtime() { stat -f %m "$1" 2>/dev/null || true; }
+fi
+
+NOW=$(date +%s)
+MIN_AGE_SECONDS=$((MIN_AGE_DAYS * 86400))
+
+# Seconds since the last checkout, commit, or index write in a worktree.
+# Prints nothing when the age cannot be worked out.
+idle_seconds() {
+    local git_dir newest=0 file stamp
+
+    git_dir=$(git -C "$1" rev-parse --absolute-git-dir 2>/dev/null) || return 0
+
+    for file in "$git_dir/HEAD" "$git_dir/index" "$git_dir/logs/HEAD"; do
+        stamp=$(mtime "$file")
+        if [[ "$stamp" =~ ^[0-9]+$ && "$stamp" -gt "$newest" ]]; then
+            newest="$stamp"
+        fi
+    done
+
+    if [[ "$newest" -gt 0 ]]; then
+        printf '%s\n' "$((NOW - newest))"
+    fi
+}
+
+TOTAL=0
+SAFE=0
+REMOVED=0
+FAILED=0
+
+keep() {
+    if [[ "$VERBOSE" == true ]]; then
+        printf 'keep    %s  (%s)\n' "$1" "$2"
+    fi
+}
+
+sweep() {
+    local path="$1" head="$2" branch="$3" locked="$4" prunable="$5"
+    local changes idle reason
+
+    TOTAL=$((TOTAL + 1))
+
+    if [[ "$path" == "$CURRENT_DIR" ]]; then
+        keep "$path" "you are in it"
+        return 0
+    fi
+
+    if [[ "$locked" == true ]]; then
+        keep "$path" "locked"
+        return 0
+    fi
+
+    if [[ "$prunable" == true || ! -d "$path" ]]; then
+        keep "$path" "directory is gone, run git worktree prune"
+        return 0
+    fi
+
+    # --no-optional-locks keeps this check from refreshing the index, which
+    # would make the worktree look active.
+    if ! changes=$(git -C "$path" --no-optional-locks status --porcelain 2>/dev/null); then
+        keep "$path" "could not read status"
+        return 0
+    fi
+
+    if [[ -n "$changes" ]]; then
+        keep "$path" "uncommitted changes"
+        return 0
+    fi
+
+    idle=$(idle_seconds "$path")
+    if [[ -z "$idle" ]]; then
+        keep "$path" "could not work out its age"
+        return 0
+    fi
+
+    if [[ "$idle" -lt "$MIN_AGE_SECONDS" ]]; then
+        keep "$path" "active in the last $MIN_AGE_DAYS days"
+        return 0
+    fi
+
+    if git -C "$MAIN_DIR" merge-base --is-ancestor "$head" "$DEFAULT_REF" 2>/dev/null; then
+        reason="nothing beyond $DEFAULT_REF"
+    elif grep -qx "$head" "$MERGED_HEADS"; then
+        reason="pull request merged"
+    else
+        keep "$path" "commits that are not merged"
+        return 0
+    fi
+
+    SAFE=$((SAFE + 1))
+
+    if [[ "$APPLY" != true ]]; then
+        printf 'remove  %s  (%s)\n' "$path" "$reason"
+        return 0
+    fi
+
+    # No --force: Git refuses if the worktree changed since the check above.
+    if ! git -C "$MAIN_DIR" worktree remove "$path" >&2; then
+        printf 'failed  %s\n' "$path"
+        FAILED=$((FAILED + 1))
+        return 0
+    fi
+
+    printf 'removed %s  (%s)\n' "$path" "$reason"
+    REMOVED=$((REMOVED + 1))
+
+    # The checks above proved the branch tip is on origin, so -D loses nothing.
+    if [[ -n "$branch" && "$KEEP_BRANCHES" != true ]]; then
+        git -C "$MAIN_DIR" branch -D "$branch" >/dev/null 2>&1 || true
+    fi
+}
+
+WT_PATH=""
+WT_HEAD=""
+WT_BRANCH=""
+WT_LOCKED=false
+WT_PRUNABLE=false
+WT_BARE=false
+
+flush() {
+    if [[ -n "$WT_PATH" && "$WT_PATH" != "$MAIN_DIR" && "$WT_BARE" != true && -n "$WT_HEAD" ]]; then
+        sweep "$WT_PATH" "$WT_HEAD" "$WT_BRANCH" "$WT_LOCKED" "$WT_PRUNABLE"
+    fi
+
+    WT_PATH=""
+    WT_HEAD=""
+    WT_BRANCH=""
+    WT_LOCKED=false
+    WT_PRUNABLE=false
+    WT_BARE=false
+}
+
+while IFS= read -r line; do
+    case "$line" in
+        "")
+            flush
+            ;;
+        "worktree "*)
+            WT_PATH="${line#worktree }"
+            ;;
+        "HEAD "*)
+            WT_HEAD="${line#HEAD }"
+            ;;
+        "branch refs/heads/"*)
+            WT_BRANCH="${line#branch refs/heads/}"
+            ;;
+        locked*)
+            WT_LOCKED=true
+            ;;
+        prunable*)
+            WT_PRUNABLE=true
+            ;;
+        bare)
+            WT_BARE=true
+            ;;
+    esac
+done < <(git -C "$MAIN_DIR" worktree list --porcelain)
+flush
+
+if [[ "$APPLY" == true ]]; then
+    printf '\nRemoved %s of %s worktrees.' "$REMOVED" "$TOTAL"
+    if [[ "$FAILED" -gt 0 ]]; then
+        printf ' %s could not be removed.' "$FAILED"
+    fi
+    printf '\n'
+else
+    printf '\n%s of %s worktrees are safe to remove.' "$SAFE" "$TOTAL"
+    if [[ "$SAFE" -gt 0 ]]; then
+        printf ' Run again with --apply to remove them.'
+    fi
+    printf '\n'
+fi

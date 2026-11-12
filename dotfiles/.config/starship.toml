@@ -2,7 +2,7 @@
 # https://starship.rs/config/
 
 format = """
-╭─(fg:#ADD8E6)${custom.holiday}[](fg:#ADD8E6 bg:blue)$directory${custom.git}${custom.directory_end}$git_state  ${custom.dotfiles} 
+╭─(fg:#ADD8E6)${custom.holiday}$hostname[](fg:#ADD8E6 bg:blue)$directory${custom.git}${custom.directory_end}$git_state  ${custom.dotfiles} 
 ╰─ """
 
 # Disable slow/unwanted modules
@@ -32,6 +32,12 @@ disabled = true
 
 [git_status]
 disabled = true
+
+# Hostname - shares the light blue segment with the holiday emoji
+[hostname]
+ssh_only = false
+format = "[$hostname ]($style)"
+style = "bg:#ADD8E6 fg:black"
 
 # Directory - blue background
 [directory]

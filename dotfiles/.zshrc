@@ -49,6 +49,16 @@ if [[ -d "$LOCAL_BIN" ]]; then
     export PATH="$LOCAL_BIN:$PATH"
 fi
 
+#########################################
+# Add n's Node.js bin dir to the PATH
+#########################################
+# Same as the n-install line in the fish config. Without it, zsh cannot find node,
+# npm, or globally installed Node CLIs.
+export N_PREFIX="$HOME/n"
+if [[ -d "$N_PREFIX/bin" && ":$PATH:" != *":$N_PREFIX/bin:"* ]]; then
+    export PATH="$N_PREFIX/bin:$PATH"
+fi
+
 #######################################
 # Set code as EDITOR if it is installed
 #######################################

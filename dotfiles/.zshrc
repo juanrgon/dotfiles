@@ -41,6 +41,15 @@ if [[ -d "$HOME/.cargo/bin" ]]; then
     export PATH="$HOME/.cargo/bin:$PATH"  # add personal scripts dir to the PATH
 fi
 
+###############################
+# Add Bun's bin dir to the PATH
+###############################
+# Same as the Bun block in the fish config. BUN_INSTALL is what `bun upgrade` reads.
+export BUN_INSTALL="$HOME/.bun"
+if [[ -d "$BUN_INSTALL/bin" ]]; then
+    export PATH="$BUN_INSTALL/bin:$PATH"
+fi
+
 ##################################
 # Add user-local bin to the PATH
 ##################################

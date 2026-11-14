@@ -48,6 +48,15 @@ if test -d $HOME/.cargo/bin
     set --export fish_user_paths $HOME/.cargo/bin $fish_user_paths  # add personal scripts dir to the PATH
 end
 
+###############################
+# Add Bun's bin dir to the PATH
+###############################
+# BUN_INSTALL is what `bun upgrade` reads.
+set --export BUN_INSTALL $HOME/.bun
+if test -d $BUN_INSTALL/bin
+    set --export fish_user_paths $BUN_INSTALL/bin $fish_user_paths
+end
+
 ##################################
 # Add user-local bin to the PATH
 ##################################

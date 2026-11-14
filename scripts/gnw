@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF_USAGE'
+Usage: gnw [OPTIONS] <branch-name>
+
+Create a new branch off the latest main branch in a dedicated worktree at:
+  ~/worktrees/<host>/<org>/<repo>/<branch-name>
+
+Prints the worktree path, so you can jump into it:
+  cd (gnw my-branch)     # fish
+  cd "$(gnw my-branch)"  # bash/zsh
+
+Arguments:
+  <branch-name>    Name of the new branch
+
+Options:
+  -n, --dry-run    Show the resolved paths and commands without changing anything
+  -h, --help       Show this help message
+EOF_USAGE
+}
+
+DRY_RUN=false
+BRANCH_NAME=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            printf 'Error: Unknown option %s\n' "$1" >&2
+            printf 'Use --help for usage information\n' >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$BRANCH_NAME" ]]; then
+                printf 'Error: Multiple branch names provided\n' >&2
+                printf 'Use --help for usage information\n' >&2
+                exit 1
+            fi
+            BRANCH_NAME="$1"
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$BRANCH_NAME" ]]; then
+    printf 'Error: Branch name is required\n' >&2
+    usage >&2
+    exit 1
+fi
+
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    printf 'Error: Not inside a Git repository\n' >&2
+    exit 1
+fi
+
+if ! git check-ref-format --branch "$BRANCH_NAME" >/dev/null 2>&1; then
+    printf 'Error: Not a valid Git branch name: %s\n' "$BRANCH_NAME" >&2
+    exit 1
+fi
+
+if ! REMOTE_URL=$(git remote get-url origin 2>/dev/null); then
+    printf 'Error: This repository has no origin remote\n' >&2
+    exit 1
+fi
+
+# Supports https://host/org/repo(.git), ssh://git@host/org/repo(.git),
+# and git@host:org/repo(.git)
+if [[ "$REMOTE_URL" =~ ^[a-z+]+://([^@/]+@)?([^/:]+)(:[0-9]+)?/([^/]+)/([^/]+)/?$ ]]; then
+    HOST="${BASH_REMATCH[2]}"
+    ORG="${BASH_REMATCH[4]}"
+    REPO="${BASH_REMATCH[5]}"
+elif [[ "$REMOTE_URL" =~ ^([^@/]+@)?([^/:]+):([^/]+)/([^/]+)/?$ ]]; then
+    HOST="${BASH_REMATCH[2]}"
+    ORG="${BASH_REMATCH[3]}"
+    REPO="${BASH_REMATCH[4]}"
+else
+    printf 'Error: Unsupported origin URL: %s\n' "$REMOTE_URL" >&2
+    exit 1
+fi
+
+REPO="${REPO%.git}"
+MAIN_BRANCH=$(git_main_branch_name)
+TARGET_DIR="$HOME/worktrees/$HOST/$ORG/$REPO/$BRANCH_NAME"
+
+if [[ "$DRY_RUN" == true ]]; then
+    printf 'Branch:   %s\n' "$BRANCH_NAME"
+    printf 'Base:     origin/%s\n' "$MAIN_BRANCH"
+    printf 'Worktree: %s\n' "$TARGET_DIR"
+    printf '\nWould execute:\n'
+    printf '  git fetch origin "%s"\n' "$MAIN_BRANCH"
+    printf '  git worktree add -b "%s" "%s" "origin/%s"\n' \
+        "$BRANCH_NAME" "$TARGET_DIR" "$MAIN_BRANCH"
+    exit 0
+fi
+
+if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+    printf 'Error: Branch already exists: %s\n' "$BRANCH_NAME" >&2
+    exit 1
+fi
+
+if [[ -e "$TARGET_DIR" ]]; then
+    printf 'Error: Worktree path already exists: %s\n' "$TARGET_DIR" >&2
+    exit 1
+fi
+
+git fetch origin "$MAIN_BRANCH" >&2
+
+mkdir -p "$(dirname "$TARGET_DIR")"
+# --no-track so a later push does not target the main branch
+git worktree add --no-track -b "$BRANCH_NAME" \
+    "$TARGET_DIR" "origin/$MAIN_BRANCH" >&2
+
+printf '%s\n' "$TARGET_DIR"

@@ -100,6 +100,19 @@ j() {
     fi
 }
 
+# Create a new branch in a worktree with the gnw script, then cd into it.
+# In a VS Code terminal the script opens a new window instead, so stay put.
+# This has to be a function because a script can't change the shell's directory.
+gnw() {
+    local out
+    out=$(command gnw "$@") || return
+    if [[ -d "$out" && "$TERM_PROGRAM" != "vscode" ]]; then
+        cd "$out"
+    elif [[ -n "$out" ]]; then
+        printf '%s\n' "$out"
+    fi
+}
+
 # Add function to change directory using j.sh script
 je() {
     # Jump to a repo and open it in the editor

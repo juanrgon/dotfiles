@@ -8,9 +8,10 @@ Usage: gnw [OPTIONS] <branch-name>
 Create a new branch off the latest main branch in a dedicated worktree at:
   ~/worktrees/<host>/<org>/<repo>/<branch-name>
 
-Prints the worktree path, so you can jump into it:
-  cd (gnw my-branch)     # fish
-  cd "$(gnw my-branch)"  # bash/zsh
+In a VS Code terminal, the new worktree opens in a new VS Code window.
+Elsewhere, the gnw shell function (fish, zsh, bash) wraps this script and
+cds into the new worktree. The script alone only prints the worktree path,
+because a script can't change the directory of the shell that runs it.
 
 Arguments:
   <branch-name>    Name of the new branch
@@ -118,5 +119,10 @@ mkdir -p "$(dirname "$TARGET_DIR")"
 # --no-track so a later push does not target the main branch
 git worktree add --no-track -b "$BRANCH_NAME" \
     "$TARGET_DIR" "origin/$MAIN_BRANCH" >&2
+
+# In a VS Code terminal, open the worktree in its own window
+if [[ "${TERM_PROGRAM:-}" == "vscode" ]] && command -v code >/dev/null 2>&1; then
+    code --new-window "$TARGET_DIR" >&2
+fi
 
 printf '%s\n' "$TARGET_DIR"

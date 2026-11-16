@@ -1,0 +1,53 @@
+#!/usr/bin/swift
+// Opens the AirDrop window with files loaded. You pick who gets them in that window. Mac only.
+// Usage: airdrop <file> [more files...]
+import AppKit
+
+final class Delegate: NSObject, NSApplicationDelegate, NSSharingServiceDelegate {
+    let files: [URL]
+    init(files: [URL]) { self.files = files }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard let service = NSSharingService(named: .sendViaAirDrop), service.canPerform(withItems: files) else {
+            print("AirDrop can't send that right now. Check that Wi-Fi and Bluetooth are on.")
+            exit(1)
+        }
+        service.delegate = self
+        NSApp.activate(ignoringOtherApps: true)
+        service.perform(withItems: files)
+        print("AirDrop window opened. Pick who to send to.")
+        fflush(stdout)
+    }
+
+    func sharingService(_ sharingService: NSSharingService, didShareItems items: [Any]) {
+        print("Sent.")
+        exit(0)
+    }
+
+    func sharingService(_ sharingService: NSSharingService, didFailToShareItems items: [Any], error: Error) {
+        if (error as NSError).code == NSUserCancelledError {
+            print("Cancelled. Nothing was sent.")
+            exit(130)
+        }
+        print("Not sent: \(error.localizedDescription)")
+        exit(2)
+    }
+}
+
+let paths = Array(CommandLine.arguments.dropFirst())
+if paths.isEmpty || paths.contains("-h") || paths.contains("--help") {
+    print("Usage: airdrop <file> [more files...]")
+    print("Opens the AirDrop window with those files loaded. You pick who gets them.")
+    exit(paths.isEmpty ? 64 : 0)
+}
+let files = paths.map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
+for file in files where !FileManager.default.fileExists(atPath: file.path) {
+    print("No file at \(file.path)")
+    exit(66)
+}
+let app = NSApplication.shared
+let delegate = Delegate(files: files)
+app.delegate = delegate
+// No Dock icon: only the AirDrop window shows.
+app.setActivationPolicy(.accessory)
+app.run()
